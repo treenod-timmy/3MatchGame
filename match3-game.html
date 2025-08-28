@@ -1831,6 +1831,58 @@
             animation: trainerPulse 3s infinite ease-in-out;
         }
 
+        /* 모든 트레이너 전용 스타일 */
+        .vocal-trainer-container,
+        .dance-trainer-container,
+        .emotion-trainer-container,
+        .hp-trainer-container,
+        .diet-trainer-container,
+        .styling-trainer-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+        }
+
+        .vocal-trainer-character,
+        .dance-trainer-character,
+        .emotion-trainer-character,
+        .hp-trainer-character,
+        .diet-trainer-character,
+        .styling-trainer-character {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .trainer-image {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .trainer-motion-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            border-radius: 15px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .trainer-motion-video.playing {
+            opacity: 1;
+            z-index: 10;
+        }
+
         @keyframes trainerPulse {
             0%, 100% { 
                 transform: scale(1);
@@ -1853,6 +1905,7 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.2);
             text-align: center;
             margin-top: 10px;
+            max-width: 250px;
         }
 
         .speech-bubble::before {
@@ -1866,6 +1919,31 @@
             border-left: 8px solid transparent;
             border-right: 8px solid transparent;
             border-bottom: 8px solid white;
+        }
+
+        /* 모든 트레이너 말풍선 전용 스타일 */
+        .vocal-trainer-container .speech-bubble,
+        .dance-trainer-container .speech-bubble,
+        .emotion-trainer-container .speech-bubble,
+        .hp-trainer-container .speech-bubble,
+        .diet-trainer-container .speech-bubble,
+        .styling-trainer-container .speech-bubble {
+            margin-top: 0;
+        }
+
+        .vocal-trainer-container .speech-bubble::before,
+        .dance-trainer-container .speech-bubble::before,
+        .emotion-trainer-container .speech-bubble::before,
+        .hp-trainer-container .speech-bubble::before,
+        .diet-trainer-container .speech-bubble::before,
+        .styling-trainer-container .speech-bubble::before {
+            top: 50%;
+            left: -8px;
+            transform: translateY(-50%);
+            border-left: none;
+            border-right: 8px solid white;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
         }
 
         .speech-bubble.animated {
@@ -2330,10 +2408,17 @@
         </div>
 
         <div class="trainer-section">
-            <div class="trainer-character">🎵</div>
-            <div class="speech-bubble" id="vocalTrainerSpeech">
-                안녕! 나는 보컬 트레이너야! 🎤<br>
-                발성과 음정을 정확하게 연습해보자!
+            <div class="vocal-trainer-container">
+                <div class="vocal-trainer-character">
+                    <video class="trainer-motion-video" muted preload="auto">
+                        <source src="./Res/tr_vocal-motion.mp4" type="video/mp4">
+                    </video>
+                    <img src="./Res/tr_vocal.png" alt="Vocal Trainer" class="trainer-image">
+                </div>
+                <div class="speech-bubble" id="vocalTrainerSpeech">
+                    안녕! 나는 보컬 트레이너야! 🎤<br>
+                    발성과 음정을 정확하게 연습해보자!
+                </div>
             </div>
         </div>
 
@@ -2399,10 +2484,17 @@
         </div>
 
         <div class="trainer-section">
-            <div class="trainer-character">🕺</div>
-            <div class="speech-bubble" id="danceTrainerSpeech">
-                요~ 댄스 트레이너야! 💃<br>
-                몸의 리듬을 느끼며 춤춰보자!
+            <div class="dance-trainer-container">
+                <div class="dance-trainer-character">
+                    <video class="trainer-motion-video" muted preload="auto">
+                        <source src="./Res/tr_dance-motion.mp4" type="video/mp4">
+                    </video>
+                    <img src="./Res/tr_dance.png" alt="Dance Trainer" class="trainer-image">
+                </div>
+                <div class="speech-bubble" id="danceTrainerSpeech">
+                    요~ 댄스 트레이너야! 💃<br>
+                    몸의 리듬을 느끼며 춤춰보자!
+                </div>
             </div>
         </div>
 
@@ -2468,10 +2560,17 @@
         </div>
 
         <div class="trainer-section">
-            <div class="trainer-character">🎭</div>
-            <div class="speech-bubble" id="emotionTrainerSpeech">
-                안녕하세요! 감정 코치입니다! 😊<br>
-                마음으로 느끼는 감정을 표현해보세요!
+            <div class="emotion-trainer-container">
+                <div class="emotion-trainer-character">
+                    <video class="trainer-motion-video" muted preload="auto">
+                        <source src="./Res/tr_emotion-motion.mp4" type="video/mp4">
+                    </video>
+                    <img src="./Res/tr_emotion.png" alt="Emotion Trainer" class="trainer-image">
+                </div>
+                <div class="speech-bubble" id="emotionTrainerSpeech">
+                    안녕하세요! 감정 코치입니다! 😊<br>
+                    마음으로 느끼는 감정을 표현해보세요!
+                </div>
             </div>
         </div>
 
@@ -2537,10 +2636,17 @@
         </div>
 
         <div class="trainer-section">
-            <div class="trainer-character">💪</div>
-            <div class="speech-bubble" id="hpTrainerSpeech">
-                헬로! 피트니스 트레이너! ❤️<br>
-                건강한 몸을 만들어보자구!
+            <div class="hp-trainer-container">
+                <div class="hp-trainer-character">
+                    <video class="trainer-motion-video" muted preload="auto">
+                        <source src="./Res/tr_hp-motion.mp4" type="video/mp4">
+                    </video>
+                    <img src="./Res/tr_hp.png" alt="HP Trainer" class="trainer-image">
+                </div>
+                <div class="speech-bubble" id="hpTrainerSpeech">
+                    헬로! 피트니스 트레이너! ❤️<br>
+                    건강한 몸을 만들어보자구!
+                </div>
             </div>
         </div>
 
@@ -2618,10 +2724,17 @@
         </div>
 
         <div class="trainer-section">
-            <div class="trainer-character">👩‍🍳</div>
-            <div class="speech-bubble" id="dietTrainerSpeech">
-                안녕하세요! 영양사입니다! 🍎<br>
-                건강한 식단으로 몸과 마음을 케어해요!
+            <div class="diet-trainer-container">
+                <div class="diet-trainer-character">
+                    <video class="trainer-motion-video" muted preload="auto">
+                        <source src="./Res/tr_diet-motion.mp4" type="video/mp4">
+                    </video>
+                    <img src="./Res/tr_diet.png" alt="Diet Trainer" class="trainer-image">
+                </div>
+                <div class="speech-bubble" id="dietTrainerSpeech">
+                    안녕하세요! 영양사입니다! 🍎<br>
+                    건강한 식단으로 몸과 마음을 케어해요!
+                </div>
             </div>
         </div>
 
@@ -2699,10 +2812,17 @@
         </div>
 
         <div class="trainer-section">
-            <div class="trainer-character">💅</div>
-            <div class="speech-bubble" id="stylingTrainerSpeech">
-                하이! 스타일리스트예요! 💄<br>
-                완벽한 스타일로 무대를 빛내보아요!
+            <div class="styling-trainer-container">
+                <div class="styling-trainer-character">
+                    <video class="trainer-motion-video" muted preload="auto">
+                        <source src="./Res/tr_styling-motion.mp4" type="video/mp4">
+                    </video>
+                    <img src="./Res/tr_styling.png" alt="Styling Trainer" class="trainer-image">
+                </div>
+                <div class="speech-bubble" id="stylingTrainerSpeech">
+                    하이! 스타일리스트예요! 💄<br>
+                    완벽한 스타일로 무대를 빛내보아요!
+                </div>
             </div>
         </div>
 
@@ -2823,7 +2943,7 @@
         let currentScreen = 'home';
         let playerData = {
             totalCoins: 0,
-            currentLevel: 5,
+            currentLevel: 4,
             maxLevel: 5,
             members: [
                 {
@@ -2918,6 +3038,11 @@
             
             showScreen('homeScreen');
             updateHomeUI();
+            
+            // 홈 화면 진입 시 캐릭터 자동 애니메이션 재생
+            setTimeout(() => {
+                playHomeScreenIntroAnimation();
+            }, 500);
         }
 
         function startGame() {
@@ -2937,7 +3062,7 @@
             // 레벨 버튼 텍스트 업데이트
             const levelBtn = document.getElementById('levelBtn');
 
-            if (playerData.currentLevel >= 3) {
+            if (playerData.currentLevel === 3 || playerData.currentLevel === 5) {
                 levelBtn.textContent = '🎤 앨범 데뷔';
                 levelBtn.onclick = startAlbumDebut;
             } else {
@@ -2974,6 +3099,37 @@
             playMemberMotion(index);
             
             // 멤버별 상세 정보나 훈련 메뉴 등을 보여줄 수 있음
+        }
+
+        // 홈 화면 진입 시 자동 애니메이션 재생
+        function playHomeScreenIntroAnimation() {
+            console.log("홈 화면 인트로 애니메이션 시작");
+            
+            // 현재 화면이 홈 화면이 아니면 실행하지 않음
+            if (currentScreen !== 'homeScreen') {
+                return;
+            }
+            
+            // 3명의 캐릭터 동시 애니메이션
+            console.log("모든 캐릭터 동시 애니메이션 시작");
+            
+            // 서연, 민지, 하연 동시 재생
+            if (currentScreen === 'homeScreen') {
+                console.log("서연 인트로 애니메이션");
+                playMemberMotion(0);
+            }
+            
+            if (currentScreen === 'homeScreen') {
+                console.log("민지 인트로 애니메이션");
+                playMemberMotion(1);
+            }
+            
+            if (currentScreen === 'homeScreen') {
+                console.log("하연 인트로 애니메이션");
+                playMemberMotion(2);
+            }
+            
+            console.log("홈 화면 인트로 애니메이션 동시 실행 완료");
         }
 
         // 멤버 모션 비디오 재생 함수
@@ -3029,9 +3185,9 @@
 
         // ===== 앨범 데뷔 시스템 =====
         function startAlbumDebut() {
-            // 레벨 체크 (3 레벨 이상이어야 데뷔 가능)
-            if (playerData.currentLevel < 3) {
-                alert(`🎤 앨범 데뷔 조건 미달!\n\n현재 레벨: ${playerData.currentLevel}\n필요 레벨: 3\n\n더 많은 게임을 클리어하여 레벨을 올리세요!`);
+            // 레벨 체크 (3 또는 5 레벨이어야 데뷔 가능)
+            if (playerData.currentLevel !== 3 && playerData.currentLevel !== 5) {
+                alert(`🎤 앨범 데뷔 조건 미달!\n\n현재 레벨: ${playerData.currentLevel}\n필요 레벨: 3 또는 5\n\n해당 레벨에서만 앨범 데뷔가 가능합니다!`);
                 return;
             }
 
@@ -3853,6 +4009,21 @@
         function doTraining(type) {
             console.log(`${type} 연습 실행`);
             
+            // 연습 타입에 따른 트레이너 애니메이션 시작
+            if (type === 'vocal') {
+                startVocalTrainerAnimation();
+            } else if (type === 'dance') {
+                startDanceTrainerAnimation();
+            } else if (type === 'emotion') {
+                startEmotionTrainerAnimation();
+            } else if (type === 'hp') {
+                startHpTrainerAnimation();
+            } else if (type === 'diet') {
+                startDietTrainerAnimation();
+            } else if (type === 'styling') {
+                startStylingTrainerAnimation();
+            }
+            
             // 연습별 스탯 증가 맵핑
             const trainingMap = {
                 vocal: ['vocal'],
@@ -3958,6 +4129,21 @@
                         };
                         
                         setTimeout(() => {
+                            // 연습 타입에 따른 트레이너 애니메이션 종료
+                            if (type === 'vocal') {
+                                stopVocalTrainerAnimation();
+                            } else if (type === 'dance') {
+                                stopDanceTrainerAnimation();
+                            } else if (type === 'emotion') {
+                                stopEmotionTrainerAnimation();
+                            } else if (type === 'hp') {
+                                stopHpTrainerAnimation();
+                            } else if (type === 'diet') {
+                                stopDietTrainerAnimation();
+                            } else if (type === 'styling') {
+                                stopStylingTrainerAnimation();
+                            }
+                            
                             alert(`🎉 ${typeNames[type]} 연습 완료!\n\n모든 멤버의 능력치가 향상되었습니다!\n총 증가량: +${totalIncrease}`);
                             
                             // 기본 메시지로 복귀
@@ -4022,7 +4208,177 @@
         }
 
         function goBackToTraining() {
+            // 모든 트레이너 애니메이션 정지
+            stopAllTrainerAnimations();
             showScreen('trainingScreen');
+        }
+
+        // 보컬 트레이너 애니메이션 제어 함수
+        function startVocalTrainerAnimation() {
+            const videoElement = document.querySelector('.trainer-motion-video');
+            if (videoElement) {
+                console.log('보컬 트레이너 애니메이션 시작');
+                
+                // 비디오를 보이게 하고 루프 재생
+                videoElement.classList.add('playing');
+                videoElement.loop = true;
+                videoElement.currentTime = 0;
+                
+                videoElement.play().then(() => {
+                    console.log('보컬 트레이너 애니메이션 루프 재생 중');
+                }).catch(e => {
+                    console.log('보컬 트레이너 비디오 재생 실패:', e);
+                    videoElement.classList.remove('playing');
+                });
+            }
+        }
+
+        function stopVocalTrainerAnimation() {
+            const videoElement = document.querySelector('.vocal-trainer-character .trainer-motion-video');
+            if (videoElement) {
+                console.log('보컬 트레이너 애니메이션 종료');
+                
+                // 비디오 정지 및 숨기기
+                videoElement.pause();
+                videoElement.classList.remove('playing');
+                videoElement.loop = false;
+                videoElement.currentTime = 0;
+            }
+        }
+
+        function startDanceTrainerAnimation() {
+            const videoElement = document.querySelector('.dance-trainer-character .trainer-motion-video');
+            if (videoElement) {
+                console.log('댄스 트레이너 애니메이션 시작');
+                videoElement.classList.add('playing');
+                videoElement.loop = true;
+                videoElement.currentTime = 0;
+                videoElement.play().catch(e => {
+                    console.log('댄스 트레이너 비디오 재생 실패:', e);
+                    videoElement.classList.remove('playing');
+                });
+            }
+        }
+
+        function stopDanceTrainerAnimation() {
+            const videoElement = document.querySelector('.dance-trainer-character .trainer-motion-video');
+            if (videoElement) {
+                console.log('댄스 트레이너 애니메이션 종료');
+                videoElement.pause();
+                videoElement.classList.remove('playing');
+                videoElement.loop = false;
+                videoElement.currentTime = 0;
+            }
+        }
+
+        function startEmotionTrainerAnimation() {
+            const videoElement = document.querySelector('.emotion-trainer-character .trainer-motion-video');
+            if (videoElement) {
+                console.log('감정 트레이너 애니메이션 시작');
+                videoElement.classList.add('playing');
+                videoElement.loop = true;
+                videoElement.currentTime = 0;
+                videoElement.play().catch(e => {
+                    console.log('감정 트레이너 비디오 재생 실패:', e);
+                    videoElement.classList.remove('playing');
+                });
+            }
+        }
+
+        function stopEmotionTrainerAnimation() {
+            const videoElement = document.querySelector('.emotion-trainer-character .trainer-motion-video');
+            if (videoElement) {
+                console.log('감정 트레이너 애니메이션 종료');
+                videoElement.pause();
+                videoElement.classList.remove('playing');
+                videoElement.loop = false;
+                videoElement.currentTime = 0;
+            }
+        }
+
+        function startHpTrainerAnimation() {
+            const videoElement = document.querySelector('.hp-trainer-character .trainer-motion-video');
+            if (videoElement) {
+                console.log('체력 트레이너 애니메이션 시작');
+                videoElement.classList.add('playing');
+                videoElement.loop = true;
+                videoElement.currentTime = 0;
+                videoElement.play().catch(e => {
+                    console.log('체력 트레이너 비디오 재생 실패:', e);
+                    videoElement.classList.remove('playing');
+                });
+            }
+        }
+
+        function stopHpTrainerAnimation() {
+            const videoElement = document.querySelector('.hp-trainer-character .trainer-motion-video');
+            if (videoElement) {
+                console.log('체력 트레이너 애니메이션 종료');
+                videoElement.pause();
+                videoElement.classList.remove('playing');
+                videoElement.loop = false;
+                videoElement.currentTime = 0;
+            }
+        }
+
+        function startDietTrainerAnimation() {
+            const videoElement = document.querySelector('.diet-trainer-character .trainer-motion-video');
+            if (videoElement) {
+                console.log('식단 트레이너 애니메이션 시작');
+                videoElement.classList.add('playing');
+                videoElement.loop = true;
+                videoElement.currentTime = 0;
+                videoElement.play().catch(e => {
+                    console.log('식단 트레이너 비디오 재생 실패:', e);
+                    videoElement.classList.remove('playing');
+                });
+            }
+        }
+
+        function stopDietTrainerAnimation() {
+            const videoElement = document.querySelector('.diet-trainer-character .trainer-motion-video');
+            if (videoElement) {
+                console.log('식단 트레이너 애니메이션 종료');
+                videoElement.pause();
+                videoElement.classList.remove('playing');
+                videoElement.loop = false;
+                videoElement.currentTime = 0;
+            }
+        }
+
+        function startStylingTrainerAnimation() {
+            const videoElement = document.querySelector('.styling-trainer-character .trainer-motion-video');
+            if (videoElement) {
+                console.log('스타일링 트레이너 애니메이션 시작');
+                videoElement.classList.add('playing');
+                videoElement.loop = true;
+                videoElement.currentTime = 0;
+                videoElement.play().catch(e => {
+                    console.log('스타일링 트레이너 비디오 재생 실패:', e);
+                    videoElement.classList.remove('playing');
+                });
+            }
+        }
+
+        function stopStylingTrainerAnimation() {
+            const videoElement = document.querySelector('.styling-trainer-character .trainer-motion-video');
+            if (videoElement) {
+                console.log('스타일링 트레이너 애니메이션 종료');
+                videoElement.pause();
+                videoElement.classList.remove('playing');
+                videoElement.loop = false;
+                videoElement.currentTime = 0;
+            }
+        }
+
+        function stopAllTrainerAnimations() {
+            console.log('모든 트레이너 애니메이션 정지');
+            stopVocalTrainerAnimation();
+            stopDanceTrainerAnimation();
+            stopEmotionTrainerAnimation();
+            stopHpTrainerAnimation();
+            stopDietTrainerAnimation();
+            stopStylingTrainerAnimation();
         }
 
         // ===== 달리기 게임 시스템 =====
@@ -4873,6 +5229,11 @@
                 splashScreen.style.display = 'none';
                 document.getElementById('homeScreen').classList.add('active');
                 currentScreen = 'homeScreen';
+                
+                // 홈 화면 진입 시 캐릭터 자동 애니메이션 재생
+                setTimeout(() => {
+                    playHomeScreenIntroAnimation();
+                }, 300);
             }, 500);
         }
 
