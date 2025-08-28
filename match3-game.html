@@ -329,7 +329,7 @@
         /* 홈 UI */
         .home-ui {
             display: flex;
-            gap: 20px;
+            justify-content: center;
             margin-bottom: 20px;
         }
 
@@ -1571,7 +1571,7 @@
     <!-- 홈 화면 -->
     <div id="homeScreen" class="screen">
         <div class="home-header">
-            <h1 class="home-title">🌟 STARLIGHT GIRLS</h1>
+            <h1 class="home-title">🌟 K-POP MATCH STARS</h1>
             <p class="home-subtitle">K-POP 스타를 육성하세요!</p>
         </div>
         
@@ -1692,73 +1692,170 @@
                 <div class="stat-value" id="totalCoins">0</div>
                 <div class="stat-label">💰 코인</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-value" id="completedLevels">0</div>
-                <div class="stat-label">🏆 클리어</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="groupLevel">1</div>
-                <div class="stat-label">👑 그룹 레벨</div>
-            </div>
         </div>
 
         <div class="home-buttons">
-            <button class="btn primary" onclick="startGame()">🎮 게임 시작</button>
-            <button class="btn" onclick="openTraining()">💪 훈련하기</button>
-            <button class="btn" onclick="openShop()">🛍️ 상점</button>
-            <button class="btn primary" onclick="startAlbumDebut()">🎤 앨범 데뷔!</button>
+            <button class="btn" onclick="openTraining()" id="trainingBtn">🔒 연습실</button>
+            <button class="btn primary" onclick="startCurrentLevel()" id="levelBtn">1 레벨</button>
         </div>
     </div>
 
-    <!-- 훈련 선택 화면 -->
+    <!-- 연습실 화면 -->
     <div id="trainingScreen" class="screen">
         <div class="home-header">
-            <h1 class="home-title">💪 훈련 센터</h1>
-            <p class="home-subtitle">멤버들의 능력을 향상시키세요!</p>
+            <h1 class="home-title">💪 연습실</h1>
             <button class="btn" onclick="goHome()" style="position: absolute; top: 20px; right: 20px;">홈으로</button>
         </div>
 
+        <!-- 캐릭터 정보 섹션 (홈 화면과 동일) -->
+        <div class="training-room">
+            <div class="girl-group">
+                <div class="member" onclick="selectMember(0)">
+                    <div class="member-avatar">
+                        <video class="motion-video" muted preload="auto">
+                            <source src="./Res/seoyeon-motion.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="member-name">서연</div>
+                    <div class="member-level">Lv.1</div>
+                    <div class="member-stats">
+                        <div class="stat-row">
+                            <div class="stat-icon">❤️</div>
+                            <div class="stat-bar"><div class="stat-fill hp" style="width: 65%" id="training-seoyeon-hp"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">😊</div>
+                            <div class="stat-bar"><div class="stat-fill emotion" style="width: 85%" id="training-seoyeon-emotion"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">🎤</div>
+                            <div class="stat-bar"><div class="stat-fill vocal" style="width: 70%" id="training-seoyeon-vocal"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">💃</div>
+                            <div class="stat-bar"><div class="stat-fill dance" style="width: 55%" id="training-seoyeon-dance"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">😍</div>
+                            <div class="stat-bar"><div class="stat-fill expression" style="width: 90%" id="training-seoyeon-expression"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">⚡</div>
+                            <div class="stat-bar"><div class="stat-fill power" style="width: 60%" id="training-seoyeon-power"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="member" onclick="selectMember(1)">
+                    <div class="member-avatar">
+                        <video class="motion-video" muted preload="auto">
+                            <source src="./Res/minji-motion.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="member-name">민지</div>
+                    <div class="member-level">Lv.1</div>
+                    <div class="member-stats">
+                        <div class="stat-row">
+                            <div class="stat-icon">❤️</div>
+                            <div class="stat-bar"><div class="stat-fill hp" style="width: 75%" id="training-minji-hp"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">😊</div>
+                            <div class="stat-bar"><div class="stat-fill emotion" style="width: 70%" id="training-minji-emotion"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">🎤</div>
+                            <div class="stat-bar"><div class="stat-fill vocal" style="width: 95%" id="training-minji-vocal"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">💃</div>
+                            <div class="stat-bar"><div class="stat-fill dance" style="width: 65%" id="training-minji-dance"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">😍</div>
+                            <div class="stat-bar"><div class="stat-fill expression" style="width: 75%" id="training-minji-expression"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">⚡</div>
+                            <div class="stat-bar"><div class="stat-fill power" style="width: 90%" id="training-minji-power"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="member" onclick="selectMember(2)">
+                    <div class="member-avatar">
+                        <video class="motion-video" muted preload="auto">
+                            <source src="./Res/hayeon-motion.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="member-name">하연</div>
+                    <div class="member-level">Lv.1</div>
+                    <div class="member-stats">
+                        <div class="stat-row">
+                            <div class="stat-icon">❤️</div>
+                            <div class="stat-bar"><div class="stat-fill hp" style="width: 95%" id="training-hayeon-hp"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">😊</div>
+                            <div class="stat-bar"><div class="stat-fill emotion" style="width: 80%" id="training-hayeon-emotion"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">🎤</div>
+                            <div class="stat-bar"><div class="stat-fill vocal" style="width: 55%" id="training-hayeon-vocal"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">💃</div>
+                            <div class="stat-bar"><div class="stat-fill dance" style="width: 100%" id="training-hayeon-dance"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">😍</div>
+                            <div class="stat-bar"><div class="stat-fill expression" style="width: 85%" id="training-hayeon-expression"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">⚡</div>
+                            <div class="stat-bar"><div class="stat-fill power" style="width: 70%" id="training-hayeon-power"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6개 연습 버튼 -->
         <div class="training-menu">
             <div class="training-category">
-                <div class="category-icon">🏃‍♀️</div>
-                <h3>체력 훈련</h3>
-                <p>달리기를 통해 체력을 향상시킵니다</p>
-                <button class="btn primary" onclick="startRunningGame()">🏃‍♀️ 달리기 시작</button>
-            </div>
-
-            <div class="training-category disabled">
-                <div class="category-icon">😊</div>
-                <h3>감성 훈련</h3>
-                <p>준비 중...</p>
-                <button class="btn" disabled>준비중</button>
-            </div>
-
-            <div class="training-category disabled">
                 <div class="category-icon">🎤</div>
-                <h3>보컬 훈련</h3>
-                <p>준비 중...</p>
-                <button class="btn" disabled>준비중</button>
+                <h3>보컬연습</h3>
+                <button class="btn primary" onclick="startTraining('vocal')">🎤 보컬연습</button>
             </div>
 
-            <div class="training-category disabled">
+            <div class="training-category">
                 <div class="category-icon">💃</div>
-                <h3>댄스 훈련</h3>
-                <p>준비 중...</p>
-                <button class="btn" disabled>준비중</button>
+                <h3>댄스연습</h3>
+                <button class="btn primary" onclick="startTraining('dance')">💃 댄스연습</button>
             </div>
 
-            <div class="training-category disabled">
-                <div class="category-icon">😍</div>
-                <h3>표정 훈련</h3>
-                <p>준비 중...</p>
-                <button class="btn" disabled>준비중</button>
+            <div class="training-category">
+                <div class="category-icon">😊</div>
+                <h3>감정연습</h3>
+                <button class="btn primary" onclick="startTraining('emotion')">😊 감정연습</button>
             </div>
 
-            <div class="training-category disabled">
-                <div class="category-icon">⚡</div>
-                <h3>파워 훈련</h3>
-                <p>준비 중...</p>
-                <button class="btn" disabled>준비중</button>
+            <div class="training-category">
+                <div class="category-icon">❤️</div>
+                <h3>체력연습</h3>
+                <button class="btn primary" onclick="startTraining('hp')">❤️ 체력연습</button>
+            </div>
+
+            <div class="training-category">
+                <div class="category-icon">🍎</div>
+                <h3>식단관리</h3>
+                <button class="btn primary" onclick="startTraining('diet')">🍎 식단관리</button>
+            </div>
+
+            <div class="training-category">
+                <div class="category-icon">💄</div>
+                <h3>스타일링</h3>
+                <button class="btn primary" onclick="startTraining('styling')">💄 스타일링</button>
             </div>
         </div>
     </div>
@@ -1951,8 +2048,8 @@
         let currentScreen = 'home';
         let playerData = {
             totalCoins: 0,
-            completedLevels: 0,
-            groupLevel: 1,
+            currentLevel: 1,
+            maxLevel: 5,
             members: [
                 {
                     name: '서연',
@@ -2006,10 +2103,36 @@
             newGame();
         }
 
+        function startCurrentLevel() {
+            level = playerData.currentLevel;
+            showScreen('gameScreen');
+            newGame();
+        }
+
         function updateHomeUI() {
             document.getElementById('totalCoins').textContent = playerData.totalCoins;
-            document.getElementById('completedLevels').textContent = playerData.completedLevels;
-            document.getElementById('groupLevel').textContent = playerData.groupLevel;
+            
+            // 레벨 버튼 텍스트 업데이트
+            const levelBtn = document.getElementById('levelBtn');
+            if (playerData.currentLevel > playerData.maxLevel) {
+                levelBtn.textContent = '🎤 앨범 데뷔';
+                levelBtn.onclick = startAlbumDebut;
+            } else {
+                levelBtn.textContent = `${playerData.currentLevel} 레벨`;
+                levelBtn.onclick = startCurrentLevel;
+            }
+            
+            // 연습실 버튼 상태 업데이트
+            const trainingBtn = document.getElementById('trainingBtn');
+            if (playerData.currentLevel >= 2) {
+                trainingBtn.textContent = '💪 연습실';
+                trainingBtn.disabled = false;
+                trainingBtn.style.opacity = '1';
+            } else {
+                trainingBtn.textContent = '🔒 연습실';
+                trainingBtn.disabled = true;
+                trainingBtn.style.opacity = '0.5';
+            }
         }
 
         // 멤버 선택 및 모션 재생
@@ -3123,9 +3246,11 @@
 
                         if (score >= targetScore) {
                             console.log("🎉 레벨 클리어 조건 달성!");
+                            // 자동 매치 스킵하고 즉시 클리어 팝업
+                            isAnimating = true;  // 추가 매치 방지
                             setTimeout(() => {
                                 levelClearToHome();
-                            }, 500);
+                            }, 100);
                         } else if (moves <= 0) {
                             console.log("💀 게임 오버 - 이동 횟수 부족");
                             setTimeout(() => {
@@ -3180,22 +3305,23 @@
 
             const stats = document.createElement('div');
             stats.className = 'clear-stats';
+            const clearBonus = 50; // 클리어 보상 50코인
             stats.innerHTML = `
-                <div>🎉 레벨 ${level} 클리어!</div>
                 <div>🎯 획득 점수: ${score}점</div>
-                <div>💰 획득 코인: ${coins}개</div>
+                <div>💰 게임 코인: ${coins}개</div>
+                <div>🎁 클리어 보상: +${clearBonus}코인</div>
             `;
 
             const homeButton = document.createElement('button');
             homeButton.className = 'clear-button';
-            homeButton.textContent = '🏠 홈으로 돌아가기';
+            homeButton.textContent = '✅ 확인';
             homeButton.onclick = () => {
-                console.log("홈 버튼 클릭");
+                console.log("확인 버튼 클릭");
                 document.body.removeChild(overlay);
 
                 // 플레이어 데이터 업데이트
-                playerData.totalCoins += coins;
-                playerData.completedLevels = Math.max(playerData.completedLevels, level);
+                playerData.totalCoins += coins + clearBonus; // 게임 코인 + 클리어 보상
+                playerData.currentLevel = Math.min(playerData.currentLevel + 1, playerData.maxLevel + 1);
 
                 // 홈으로 이동
                 goHome();
