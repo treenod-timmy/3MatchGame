@@ -1,0 +1,3238 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K팝 스타 육성 게임</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #ff6b9d, #c44569, #4834d4, #686de0);
+            font-family: 'Arial', sans-serif;
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 화면 전환 */
+        .screen {
+            display: none;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ===== 홈 화면 스타일 ===== */
+        .home-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .home-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin: 0;
+            background: linear-gradient(45deg, #fff, #ffd700, #ff69b4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .home-subtitle {
+            font-size: 1.2em;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+
+        /* 육성룸 스타일 */
+        .training-room {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 25px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 걸그룹 멤버들 */
+        .girl-group {
+            display: flex;
+            justify-content: center;
+            align-items: end;
+            gap: 60px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .member {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .member:hover {
+            transform: translateY(-10px);
+        }
+
+        .member-avatar {
+            width: 120px;
+            height: 160px;
+            border-radius: 20px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            margin-bottom: 15px;
+            box-shadow: none;
+            position: relative;
+            overflow: hidden;
+            border: none;
+        }
+
+        /* 서연 - 실제 이미지 적용 */
+        .member:nth-child(1) .member-avatar {
+            background-image: url('./seoyeon.png');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .member:nth-child(1) .member-avatar .motion-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            pointer-events: none;
+            object-fit: contain;
+            border-radius: 20px;
+            transition: opacity 0.3s ease;
+        }
+
+        .member:nth-child(1) .member-avatar .motion-video.playing {
+            opacity: 1;
+        }
+
+        .member:nth-child(1) .member-avatar::before {
+            content: '';
+        }
+
+        /* 민지 - 실제 이미지 적용 (센터) */
+        .member:nth-child(2) .member-avatar {
+            background-image: url('./minji.png');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            transform: scale(1.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .member:nth-child(2) .member-avatar .motion-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            pointer-events: none;
+            object-fit: contain;
+            border-radius: 20px;
+            transition: opacity 0.3s ease;
+        }
+
+        .member:nth-child(2) .member-avatar .motion-video.playing {
+            opacity: 1;
+        }
+
+        .member:nth-child(2) .member-avatar::before {
+            content: '';
+        }
+
+        .member:nth-child(2) .member-avatar::after {
+            content: '';
+        }
+
+        /* 하연 - 실제 이미지 적용 */
+        .member:nth-child(3) .member-avatar {
+            background-image: url('./hayeon.png');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .member:nth-child(3) .member-avatar .motion-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            pointer-events: none;
+            object-fit: contain;
+            border-radius: 20px;
+            transition: opacity 0.3s ease;
+        }
+
+        .member:nth-child(3) .member-avatar .motion-video.playing {
+            opacity: 1;
+        }
+
+        /* 대체 애니메이션 */
+        @keyframes memberClick {
+            0% { 
+                transform: scale(1) rotate(0deg); 
+                filter: brightness(1);
+            }
+            25% { 
+                transform: scale(1.1) rotate(-3deg); 
+                filter: brightness(1.2);
+            }
+            50% { 
+                transform: scale(1.15) rotate(3deg); 
+                filter: brightness(1.3);
+            }
+            75% { 
+                transform: scale(1.05) rotate(-1deg); 
+                filter: brightness(1.1);
+            }
+            100% { 
+                transform: scale(1) rotate(0deg); 
+                filter: brightness(1);
+            }
+        }
+
+        .member:nth-child(3) .member-avatar::before {
+            content: '';
+        }
+
+        .member:nth-child(3) .member-avatar::after {
+            content: '';
+        }
+
+        /* 애니메이션 효과들 */
+        @keyframes centerShine {
+            0% { filter: brightness(1) drop-shadow(0 0 5px rgba(255,215,0,0.3)); }
+            100% { filter: brightness(1.2) drop-shadow(0 0 15px rgba(255,215,0,0.6)); }
+        }
+
+        @keyframes danceMove {
+            0%, 100% { transform: translateX(-50%) rotate(-2deg); }
+            50% { transform: translateX(-50%) rotate(2deg); }
+        }
+
+        /* 호버 효과 */
+        .member:hover .member-avatar {
+            transform: translateY(-8px);
+            box-shadow: none;
+            border: none;
+        }
+
+        .member:nth-child(2):hover .member-avatar {
+            transform: translateY(-8px) scale(1.15);
+            box-shadow: none;  
+            border: none;
+        }
+
+        .member:hover .member-avatar::before {
+            filter: brightness(1.3);
+        }
+
+        .member:hover .member-avatar::after {
+            filter: brightness(1.1);
+        }
+
+        .member-name {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .member-level {
+            font-size: 0.9em;
+            background: rgba(255, 215, 0, 0.2);
+            padding: 3px 10px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        /* 스텟 바 */
+        .member-stats {
+            margin-top: 10px;
+            width: 100px;
+        }
+
+        .stat-row {
+            display: flex;
+            align-items: center;
+            margin: 2px 0;
+        }
+
+        .stat-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 4px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-bar {
+            background: rgba(255, 255, 255, 0.2);
+            height: 4px;
+            border-radius: 2px;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .stat-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+
+        .hp { background: linear-gradient(90deg, #ff4757, #ff6b7a); }
+        .emotion { background: linear-gradient(90deg, #ff9ff3, #f368e0); }
+        .vocal { background: linear-gradient(90deg, #3742fa, #5352ed); }
+        .dance { background: linear-gradient(90deg, #2ed573, #7bed9f); }
+        .expression { background: linear-gradient(90deg, #ffa502, #ff6348); }
+        .power { background: linear-gradient(90deg, #8e44ad, #9c88ff); }
+
+        /* 홈 UI */
+        .home-ui {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px 25px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-width: 100px;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        /* 버튼들 */
+        .home-buttons {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, #ffd700, #ffed4a);
+            color: #333;
+        }
+
+        /* ===== 게임 화면 스타일 ===== */
+        .game-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .game-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin: 0;
+            background: linear-gradient(45deg, #fff, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .score-board {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .score-item {
+            display: inline-block;
+            margin: 0 20px;
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .score-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .score-target {
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: -5px;
+        }
+
+        .game-board {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(8, 60px);
+            grid-template-rows: repeat(8, 60px);
+            gap: 3px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 15px;
+        }
+
+        .cell {
+            width: 60px;
+            height: 60px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 2px 0 rgba(255,255,255,0.3), 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .cell:hover {
+            transform: translateY(-2px);
+            box-shadow: inset 0 2px 0 rgba(255,255,255,0.3), 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        .cell:active {
+            transform: translateY(1px);
+            box-shadow: inset 0 2px 0 rgba(255,255,255,0.3), 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .cell.drag-start {
+            transform: scale(1.1);
+            box-shadow: 
+                inset 0 2px 0 rgba(255,255,255,0.5),
+                0 0 0 2px #00ff88,
+                0 6px 16px rgba(0,255,136,0.3);
+        }
+
+        .cell.dragging {
+            transform: scale(1.15);
+            z-index: 1000;
+            box-shadow: 
+                inset 0 2px 0 rgba(255,255,255,0.3),
+                0 8px 25px rgba(0,0,0,0.4);
+            opacity: 0.8;
+        }
+
+        .cell.drag-target {
+            background: linear-gradient(135deg, #ffd700, #ffed4a);
+            transform: scale(1.1);
+            box-shadow: 
+                inset 0 2px 0 rgba(255,255,255,0.5),
+                0 0 0 4px #ffd700,
+                0 8px 20px rgba(255,215,0,0.6);
+            animation: dragTargetPulse 0.5s infinite alternate;
+        }
+
+        @keyframes dragTargetPulse {
+            0% {
+                box-shadow: 
+                    inset 0 2px 0 rgba(255,255,255,0.5),
+                    0 0 0 4px #ffd700,
+                    0 8px 20px rgba(255,215,0,0.6);
+                transform: scale(1.1);
+            }
+            100% {
+                box-shadow: 
+                    inset 0 2px 0 rgba(255,255,255,0.5),
+                    0 0 0 4px #ffed4a,
+                    0 8px 20px rgba(255,215,0,0.8);
+                transform: scale(1.15);
+            }
+        }
+
+        .block {
+            width: 55px;
+            height: 55px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0px;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            transition: all 0.2s ease;
+            position: relative;
+            box-shadow: 
+                inset 0 2px 0 rgba(255,255,255,0.2),
+                0 2px 4px rgba(0,0,0,0.2);
+            color: transparent;
+            text-indent: -9999px;
+            overflow: hidden;
+            line-height: 0;
+        }
+
+        .block.mic {
+            background-image: url('./block-mic.png');
+            background-size: 180%;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            color: transparent;
+            font-size: 0;
+        }
+
+        .block.headphones {
+            background-image: url('./block-gui.png');
+            background-size: 180%;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            color: transparent;
+            font-size: 0;
+        }
+
+        .block.lightstick {
+            background-image: url('./block-lightstick.png');
+            background-size: 180%;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            color: transparent;
+            font-size: 0;
+        }
+
+        .block.note {
+            background-image: url('./block-sho.png');
+            background-size: 180%;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            color: transparent;
+            font-size: 0;
+        }
+
+        .cell:hover .block {
+            transform: scale(1.1);
+            box-shadow: 
+                inset 0 2px 0 rgba(255,255,255,0.3),
+                0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .cell:active .block {
+            transform: scale(0.95);
+            box-shadow: 
+                inset 0 1px 0 rgba(255,255,255,0.2),
+                0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .game-controls {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        /* 이펙트들 */
+        .match-effect {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .match-explosion {
+            animation: explosionEffect 0.8s ease-out forwards;
+        }
+
+        @keyframes explosionEffect {
+            0% {
+                background: radial-gradient(circle, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 100%);
+                transform: scale(1);
+                opacity: 1;
+            }
+            15% {
+                background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,215,0,0.9) 30%, rgba(255,69,0,0.8) 60%, transparent 100%);
+                transform: scale(1.3);
+                opacity: 1;
+            }
+            40% {
+                background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,140,0,0.7) 40%, rgba(255,0,128,0.6) 70%, transparent 100%);
+                transform: scale(1.8);
+                opacity: 0.9;
+            }
+            70% {
+                background: radial-gradient(circle, transparent 0%, rgba(255,69,0,0.4) 50%, rgba(138,43,226,0.3) 80%, transparent 100%);
+                transform: scale(2.5);
+                opacity: 0.6;
+            }
+            100% {
+                background: radial-gradient(circle, transparent 0%, transparent 100%);
+                transform: scale(3.5);
+                opacity: 0;
+            }
+        }
+
+        .sparkle-burst {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 4px;
+            height: 4px;
+            background: #ffd700;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .sparkle-1 { animation: sparkleExplode 0.8s ease-out; transform: translate(-50%, -50%) rotate(0deg); }
+        .sparkle-2 { animation: sparkleExplode 0.8s ease-out 0.1s; transform: translate(-50%, -50%) rotate(45deg); }
+        .sparkle-3 { animation: sparkleExplode 0.8s ease-out 0.2s; transform: translate(-50%, -50%) rotate(90deg); }
+        .sparkle-4 { animation: sparkleExplode 0.8s ease-out 0.15s; transform: translate(-50%, -50%) rotate(135deg); }
+        .sparkle-5 { animation: sparkleExplode 0.8s ease-out 0.05s; transform: translate(-50%, -50%) rotate(180deg); }
+        .sparkle-6 { animation: sparkleExplode 0.8s ease-out 0.25s; transform: translate(-50%, -50%) rotate(225deg); }
+        .sparkle-7 { animation: sparkleExplode 0.8s ease-out 0.3s; transform: translate(-50%, -50%) rotate(270deg); }
+        .sparkle-8 { animation: sparkleExplode 0.8s ease-out 0.2s; transform: translate(-50%, -50%) rotate(315deg); }
+
+        @keyframes sparkleExplode {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1) translateY(0);
+                box-shadow: 0 0 4px #ffd700;
+            }
+            50% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.5) translateY(-30px);
+                box-shadow: 0 0 8px #ffd700, 0 0 16px rgba(255,215,0,0.6);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5) translateY(-60px);
+                box-shadow: 0 0 2px #ffd700;
+            }
+        }
+
+        .cell.destroying {
+            animation: blockDestroy 0.8s ease-out forwards;
+        }
+
+        @keyframes blockDestroy {
+            0% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+            30% {
+                transform: scale(1.2) rotate(10deg);
+                opacity: 1;
+            }
+            60% {
+                transform: scale(0.8) rotate(-5deg);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(0) rotate(0deg);
+                opacity: 0;
+            }
+        }
+
+        .screen-flash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0;
+            animation: screenFlash 0.4s ease-out;
+        }
+
+        @keyframes screenFlash {
+            0% { opacity: 0; }
+            20% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        .coin-effect {
+            position: absolute;
+            font-size: 24px;
+            color: #ffd700;
+            font-weight: bold;
+            pointer-events: none;
+            z-index: 200;
+            text-shadow: 
+                0 0 10px rgba(255, 215, 0, 0.8),
+                2px 2px 4px rgba(0,0,0,0.5);
+            animation: coinFloat 1.5s ease-out forwards;
+        }
+
+        @keyframes coinFloat {
+            0% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.3) translateY(-20px);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1) translateY(-50px);
+            }
+        }
+
+        /* 클리어 오버레이 */
+        .clear-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            animation: clearFadeIn 0.5s ease-out forwards;
+        }
+
+        .clear-message {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 60px 80px;
+            border-radius: 25px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            transform: scale(0.8);
+            animation: clearPop 0.6s ease-out 0.3s forwards;
+        }
+
+        .clear-title {
+            font-size: 4em;
+            font-weight: bold;
+            margin: 0 0 20px 0;
+            text-shadow: 
+                0 0 20px rgba(255, 255, 255, 0.8),
+                3px 3px 6px rgba(0,0,0,0.5);
+            background: linear-gradient(45deg, #ffd700, #fff, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: clearGlow 2s infinite alternate;
+        }
+
+        .clear-stats {
+            font-size: 1.3em;
+            margin: 20px 0;
+            opacity: 0;
+            animation: clearStatsShow 0.8s ease-out 0.8s forwards;
+        }
+
+        .clear-button {
+            background: linear-gradient(135deg, #ffd700, #ffed4a);
+            border: none;
+            color: #333;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);
+            transition: all 0.3s ease;
+            opacity: 0;
+            animation: clearButtonShow 0.8s ease-out 1.2s forwards;
+        }
+
+        .clear-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(255, 215, 0, 0.5);
+        }
+
+        @keyframes clearFadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes clearPop {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes clearGlow {
+            0% { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 3px 3px 6px rgba(0,0,0,0.5); }
+            100% { text-shadow: 0 0 30px rgba(255, 255, 255, 1), 3px 3px 6px rgba(0,0,0,0.5); }
+        }
+
+        @keyframes clearStatsShow {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes clearButtonShow {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== 스플래시 화면 스타일 ===== */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ff6b9d, #c44569, #4834d4, #686de0);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .splash-screen.fade-out {
+            opacity: 0;
+        }
+
+        .splash-logo {
+            width: 300px;
+            height: 300px;
+            background-image: url('./splash.png');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            margin-bottom: 30px;
+            animation: splashPulse 2s infinite ease-in-out;
+        }
+
+        .splash-title {
+            font-size: 3em;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #fff, #ffd700, #ff69b4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: splashGlow 2s infinite alternate;
+        }
+
+        .splash-subtitle {
+            font-size: 1.2em;
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            opacity: 0;
+            animation: splashFadeIn 1s ease-out 1s forwards;
+        }
+
+        .loading-dots {
+            margin-top: 30px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .loading-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 215, 0, 0.8);
+            animation: loadingBounce 1.4s infinite ease-in-out both;
+        }
+
+        .loading-dot:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dot:nth-child(2) { animation-delay: -0.16s; }
+        .loading-dot:nth-child(3) { animation-delay: 0s; }
+
+        @keyframes splashPulse {
+            0%, 100% { 
+                transform: scale(1);
+                filter: brightness(1);
+            }
+            50% { 
+                transform: scale(1.05);
+                filter: brightness(1.1);
+            }
+        }
+
+        @keyframes splashGlow {
+            0% { 
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.5), 0 0 20px rgba(255,215,0,0.3);
+            }
+            100% { 
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.5), 0 0 30px rgba(255,215,0,0.6);
+            }
+        }
+
+        @keyframes splashFadeIn {
+            0% { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% { 
+                opacity: 0.9;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes loadingBounce {
+            0%, 80%, 100% {
+                transform: scale(0);
+            }
+            40% {
+                transform: scale(1);
+            }
+        }
+
+        /* ===== 훈련 센터 스타일 ===== */
+        .training-menu {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .training-category {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .training-category:hover:not(.disabled) {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .training-category.disabled {
+            opacity: 0.5;
+            filter: grayscale(50%);
+        }
+
+        .category-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        .training-category h3 {
+            font-size: 1.5em;
+            margin: 15px 0 10px 0;
+            color: #ffd700;
+        }
+
+        .training-category p {
+            margin: 0 0 20px 0;
+            opacity: 0.8;
+        }
+
+        /* ===== 달리기 게임 스타일 ===== */
+        .running-game {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .running-track {
+            background: linear-gradient(180deg, #87CEEB 0%, #32CD32 50%, #228B22 100%);
+            height: 200px;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 30px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .runner {
+            position: absolute;
+            left: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3em;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .runner.running {
+            animation: runningBounce 0.3s ease-in-out;
+        }
+
+        @keyframes runningBounce {
+            0%, 100% { transform: translateY(-50%) scale(1); }
+            50% { transform: translateY(-60%) scale(1.1); }
+        }
+
+        .finish-line {
+            position: absolute;
+            right: 30px;
+            top: 20px;
+            font-size: 2em;
+            animation: finishFlag 2s infinite ease-in-out;
+        }
+
+        @keyframes finishFlag {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+
+        .progress-bar {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ffd700, #ff6b9d);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .running-ui {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .stamina-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            margin-top: 8px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .stamina-fill {
+            height: 100%;
+            width: 100%;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            background: linear-gradient(90deg, #00ff88, #00cc6a);
+            box-shadow: 0 0 10px rgba(0,255,136,0.5);
+        }
+
+        .stamina-fill.medium {
+            background: linear-gradient(90deg, #ffd700, #ffed4a);
+            box-shadow: 0 0 10px rgba(255,215,0,0.5);
+        }
+
+        .stamina-fill.low {
+            background: linear-gradient(90deg, #ff4757, #ff3742);
+            box-shadow: 0 0 10px rgba(255,71,87,0.5);
+            animation: staminaWarning 0.8s infinite alternate;
+        }
+
+        .stamina-fill.critical {
+            background: linear-gradient(90deg, #dc143c, #8b0000);
+            box-shadow: 0 0 15px rgba(220,20,60,0.8);
+            animation: staminaCritical 0.4s infinite alternate;
+        }
+
+        @keyframes staminaWarning {
+            0% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes staminaCritical {
+            0% {
+                opacity: 0.7;
+                box-shadow: 0 0 15px rgba(220,20,60,0.8);
+            }
+            100% {
+                opacity: 1;
+                box-shadow: 0 0 25px rgba(220,20,60,1), 0 0 35px rgba(255,0,0,0.5);
+            }
+        }
+
+        .running-controls {
+            text-align: center;
+        }
+
+        .running-btn {
+            font-size: 1.5em;
+            padding: 20px 40px;
+            margin-bottom: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .running-btn:active {
+            transform: scale(0.95);
+        }
+
+        .running-btn.perfect {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            animation: perfectPulse 0.3s ease-out;
+        }
+
+        .running-btn.good {
+            background: linear-gradient(135deg, #ffd700, #ffed4a);
+            animation: goodPulse 0.3s ease-out;
+        }
+
+        .running-btn.bad {
+            background: linear-gradient(135deg, #ff4757, #ff3742);
+            animation: badShake 0.3s ease-out;
+        }
+
+        @keyframes perfectPulse {
+            0% { transform: scale(1); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+            50% { transform: scale(1.1); box-shadow: 0 8px 30px rgba(0,255,136,0.5); }
+            100% { transform: scale(1); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        }
+
+        @keyframes goodPulse {
+            0% { transform: scale(1); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+            50% { transform: scale(1.05); box-shadow: 0 8px 25px rgba(255,215,0,0.5); }
+            100% { transform: scale(1); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        }
+
+        @keyframes badShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .instructions p {
+            margin: 5px 0;
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        /* ===== 무대 스테이지 스타일 ===== */
+        .stage-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .stage-backdrop {
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 30%, #0f3460 70%, #533483 100%);
+            border-radius: 25px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .stage-lights {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: 
+                radial-gradient(circle at 40% 50%, rgba(255,0,255,0.8) 0%, transparent 15%),
+                radial-gradient(circle at 60% 50%, rgba(0,255,255,0.8) 0%, transparent 15%),
+                radial-gradient(circle at 80% 50%, rgba(255,255,0,0.8) 0%, transparent 15%);
+            animation: stageLights 3s infinite ease-in-out;
+        }
+
+        @keyframes stageLights {
+            0%, 100% { 
+                opacity: 0.8;
+                filter: brightness(1);
+            }
+            50% { 
+                opacity: 1;
+                filter: brightness(1.5);
+            }
+        }
+
+        .stage-platform {
+            background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.2) 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 40px;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .stage-members {
+            display: flex;
+            justify-content: center;
+            align-items: end;
+            gap: 80px;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .stage-member {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            transition: all 0.5s ease;
+        }
+
+        .stage-member.center {
+            transform: scale(1.1);
+            z-index: 10;
+        }
+
+        .member-stage-avatar {
+            width: 100px;
+            height: 130px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            box-shadow: 
+                0 15px 40px rgba(0,0,0,0.5),
+                inset 0 2px 0 rgba(255,255,255,0.3);
+            position: relative;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .member-stage-avatar::before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 30%, transparent 70%);
+            border-radius: 50%;
+            animation: spotlightPulse 3s infinite ease-in-out;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        @keyframes spotlightPulse {
+            0%, 100% { 
+                opacity: 0.6;
+                transform: translateX(-50%) scale(1);
+            }
+            50% { 
+                opacity: 1;
+                transform: translateX(-50%) scale(1.2);
+            }
+        }
+
+        /* 서연 - 무대 버전 이미지 적용 */
+        .seoyeon-stage {
+            background-image: url('./seoyeon.png');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: #87CEEB;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .seoyeon-stage::before {
+            background: radial-gradient(circle, rgba(135,206,235,0.3) 0%, rgba(70,130,180,0.2) 30%, transparent 70%);
+        }
+
+        /* 민지 - 무대 버전 이미지 적용 (센터) */
+        .minji-stage {
+            background-image: url('./minji.png');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: #FFB6C1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .minji-stage::before {
+            background: radial-gradient(circle, rgba(255,215,0,0.3) 0%, rgba(255,105,180,0.2) 30%, transparent 70%);
+        }
+
+        /* 하연 - 무대 버전 이미지 적용 */
+        .hayeon-stage {
+            background-image: url('./hayeon.png');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: #FFB6C1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .hayeon-stage::before {
+            background: radial-gradient(circle, rgba(255,20,147,0.3) 0%, rgba(220,20,60,0.2) 30%, transparent 70%);
+        }
+
+        .member-stage-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.3);
+            padding: 5px 15px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+        }
+
+        .performance-ui {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .performance-stats {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .performance-controls {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .performance-btn {
+            font-size: 1.3em;
+            padding: 15px 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .performance-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: buttonShine 2s infinite;
+        }
+
+        @keyframes buttonShine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .performance-progress {
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .progress-section {
+            margin-bottom: 20px;
+        }
+
+        .progress-section h3 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .song-progress {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .song-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .song-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff6b9d, #c44569, #4834d4);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            animation: songProgress 1s infinite ease-in-out;
+        }
+
+        @keyframes songProgress {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.3); }
+        }
+
+        .song-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9em;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .live-reactions {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .reaction-feed {
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .reaction {
+            background: rgba(255,255,255,0.1);
+            padding: 8px 15px;
+            margin: 5px 0;
+            border-radius: 20px;
+            font-size: 0.9em;
+            animation: reactionFadeIn 0.5s ease-out;
+        }
+
+        @keyframes reactionFadeIn {
+            0% { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stage-member.dancing {
+            animation: stagePerformance 1s ease-in-out;
+        }
+
+        @keyframes stagePerformance {
+            0%, 100% { transform: translateY(0) scale(1); }
+            25% { transform: translateY(-10px) scale(1.05); }
+            50% { transform: translateY(-5px) scale(1.1); }
+            75% { transform: translateY(-15px) scale(1.05); }
+        }
+
+        .stage-member.center.dancing {
+            animation: centerPerformance 1s ease-in-out;
+        }
+
+        @keyframes centerPerformance {
+            0%, 100% { transform: scale(1.1) translateY(0); }
+            25% { transform: scale(1.15) translateY(-15px); }
+            50% { transform: scale(1.2) translateY(-10px); }
+            75% { transform: scale(1.15) translateY(-20px); }
+        }
+
+        .lyrics {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .lyrics-container {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .current-lyric {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .next-lyric {
+            font-size: 1em;
+            color: rgba(255,255,255,0.7);
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <!-- 스플래시 화면 -->
+    <div id="splashScreen" class="splash-screen">
+        <div class="splash-logo"></div>
+        <h1 class="splash-title">🌟 STARLIGHT GIRLS</h1>
+        <p class="splash-subtitle">K-POP 스타를 육성하세요!</p>
+        <div class="loading-dots">
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+        </div>
+    </div>
+
+    <!-- 홈 화면 -->
+    <div id="homeScreen" class="screen">
+        <div class="home-header">
+            <h1 class="home-title">🌟 STARLIGHT GIRLS</h1>
+            <p class="home-subtitle">K-POP 스타를 육성하세요!</p>
+        </div>
+        
+        <div class="training-room">
+            <div class="girl-group">
+                <div class="member" onclick="selectMember(0)">
+                    <div class="member-avatar">
+                        <video class="motion-video" muted preload="auto">
+                            <source src="./seoyeon-motion.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="member-name">서연</div>
+                    <div class="member-level">Lv.1</div>
+                    <div class="member-stats">
+                        <div class="stat-row">
+                            <div class="stat-icon">❤️</div>
+                            <div class="stat-bar"><div class="stat-fill hp" style="width: 65%" id="seoyeon-hp"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">😊</div>
+                            <div class="stat-bar"><div class="stat-fill emotion" style="width: 85%" id="seoyeon-emotion"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">🎤</div>
+                            <div class="stat-bar"><div class="stat-fill vocal" style="width: 70%" id="seoyeon-vocal"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">💃</div>
+                            <div class="stat-bar"><div class="stat-fill dance" style="width: 55%" id="seoyeon-dance"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">😍</div>
+                            <div class="stat-bar"><div class="stat-fill expression" style="width: 90%" id="seoyeon-expression"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">⚡</div>
+                            <div class="stat-bar"><div class="stat-fill power" style="width: 60%" id="seoyeon-power"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="member" onclick="selectMember(1)">
+                    <div class="member-avatar">
+                        <video class="motion-video" muted preload="auto">
+                            <source src="./minji-motion.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="member-name">민지</div>
+                    <div class="member-level">Lv.1</div>
+                    <div class="member-stats">
+                        <div class="stat-row">
+                            <div class="stat-icon">❤️</div>
+                            <div class="stat-bar"><div class="stat-fill hp" style="width: 75%" id="minji-hp"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">😊</div>
+                            <div class="stat-bar"><div class="stat-fill emotion" style="width: 70%" id="minji-emotion"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">🎤</div>
+                            <div class="stat-bar"><div class="stat-fill vocal" style="width: 95%" id="minji-vocal"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">💃</div>
+                            <div class="stat-bar"><div class="stat-fill dance" style="width: 65%" id="minji-dance"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">😍</div>
+                            <div class="stat-bar"><div class="stat-fill expression" style="width: 75%" id="minji-expression"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">⚡</div>
+                            <div class="stat-bar"><div class="stat-fill power" style="width: 90%" id="minji-power"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="member" onclick="selectMember(2)">
+                    <div class="member-avatar">
+                        <video class="motion-video" muted preload="auto">
+                            <source src="./hayeon-motion.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="member-name">하연</div>
+                    <div class="member-level">Lv.1</div>
+                    <div class="member-stats">
+                        <div class="stat-row">
+                            <div class="stat-icon">❤️</div>
+                            <div class="stat-bar"><div class="stat-fill hp" style="width: 95%" id="hayeon-hp"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">😊</div>
+                            <div class="stat-bar"><div class="stat-fill emotion" style="width: 80%" id="hayeon-emotion"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">🎤</div>
+                            <div class="stat-bar"><div class="stat-fill vocal" style="width: 55%" id="hayeon-vocal"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">💃</div>
+                            <div class="stat-bar"><div class="stat-fill dance" style="width: 100%" id="hayeon-dance"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">😍</div>
+                            <div class="stat-bar"><div class="stat-fill expression" style="width: 85%" id="hayeon-expression"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-icon">⚡</div>
+                            <div class="stat-bar"><div class="stat-fill power" style="width: 70%" id="hayeon-power"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="home-ui">
+            <div class="stat-card">
+                <div class="stat-value" id="totalCoins">0</div>
+                <div class="stat-label">💰 코인</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="completedLevels">0</div>
+                <div class="stat-label">🏆 클리어</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="groupLevel">1</div>
+                <div class="stat-label">👑 그룹 레벨</div>
+            </div>
+        </div>
+
+        <div class="home-buttons">
+            <button class="btn primary" onclick="startGame()">🎮 게임 시작</button>
+            <button class="btn" onclick="openTraining()">💪 훈련하기</button>
+            <button class="btn" onclick="openShop()">🛍️ 상점</button>
+            <button class="btn primary" onclick="startAlbumDebut()">🎤 앨범 데뷔!</button>
+        </div>
+    </div>
+
+    <!-- 훈련 선택 화면 -->
+    <div id="trainingScreen" class="screen">
+        <div class="home-header">
+            <h1 class="home-title">💪 훈련 센터</h1>
+            <p class="home-subtitle">멤버들의 능력을 향상시키세요!</p>
+            <button class="btn" onclick="goHome()" style="position: absolute; top: 20px; right: 20px;">홈으로</button>
+        </div>
+
+        <div class="training-menu">
+            <div class="training-category">
+                <div class="category-icon">🏃‍♀️</div>
+                <h3>체력 훈련</h3>
+                <p>달리기를 통해 체력을 향상시킵니다</p>
+                <button class="btn primary" onclick="startRunningGame()">🏃‍♀️ 달리기 시작</button>
+            </div>
+
+            <div class="training-category disabled">
+                <div class="category-icon">😊</div>
+                <h3>감성 훈련</h3>
+                <p>준비 중...</p>
+                <button class="btn" disabled>준비중</button>
+            </div>
+
+            <div class="training-category disabled">
+                <div class="category-icon">🎤</div>
+                <h3>보컬 훈련</h3>
+                <p>준비 중...</p>
+                <button class="btn" disabled>준비중</button>
+            </div>
+
+            <div class="training-category disabled">
+                <div class="category-icon">💃</div>
+                <h3>댄스 훈련</h3>
+                <p>준비 중...</p>
+                <button class="btn" disabled>준비중</button>
+            </div>
+
+            <div class="training-category disabled">
+                <div class="category-icon">😍</div>
+                <h3>표정 훈련</h3>
+                <p>준비 중...</p>
+                <button class="btn" disabled>준비중</button>
+            </div>
+
+            <div class="training-category disabled">
+                <div class="category-icon">⚡</div>
+                <h3>파워 훈련</h3>
+                <p>준비 중...</p>
+                <button class="btn" disabled>준비중</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 달리기 게임 화면 -->
+    <div id="runningGameScreen" class="screen">
+        <div class="game-header">
+            <h1 class="game-title">🏃‍♀️ 체력 훈련 - 달리기</h1>
+            <button class="btn" onclick="exitRunningGame()" style="position: absolute; top: 20px; right: 20px;">나가기</button>
+        </div>
+
+        <div class="running-game">
+            <div class="running-track">
+                <div class="runner" id="runner">🏃‍♀️</div>
+                <div class="finish-line">🏁</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="runProgress"></div>
+                </div>
+            </div>
+
+            <div class="running-ui">
+                <div class="stat-card">
+                    <div class="stat-value" id="runDistance">0m</div>
+                    <div class="stat-label">거리</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="runSpeed">0</div>
+                    <div class="stat-label">속도</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="runStamina">100</div>
+                    <div class="stat-label">스태미나</div>
+                    <div class="stamina-bar">
+                        <div class="stamina-fill" id="staminaBar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="running-controls">
+                <button class="btn primary running-btn" id="runBtn" onclick="runStep()">🏃‍♀️ 달리기!</button>
+                <div class="instructions">
+                    <p>🎯 버튼을 클릭하거나 스페이스바를 리듬에 맞춰 눌러서 달리세요!</p>
+                    <p>⏰ 1초 간격으로 누르는 것이 가장 효율적이에요!</p>
+                    <p>⚠️ 너무 빠르거나 느리면 스태미나가 많이 떨어져요!</p>
+                    <p>🏁 100m 완주를 목표로 해보세요!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 게임 화면 -->
+    <div id="gameScreen" class="screen">
+        <div class="game-header">
+            <h1 class="game-title">🎵 K-POP MATCH</h1>
+            <button class="btn" onclick="goHome()" style="position: absolute; top: 20px; right: 20px;">홈으로</button>
+        </div>
+
+        <div class="score-board">
+            <div class="score-item">
+                <div class="score-label">점수</div>
+                <div class="score-value" id="score">0</div>
+                <div class="score-target" id="target">/ 3000</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">코인</div>
+                <div class="score-value" id="coins">0</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">레벨</div>
+                <div class="score-value" id="level">1</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">이동</div>
+                <div class="score-value" id="moves">30</div>
+            </div>
+        </div>
+
+        <div class="game-board">
+            <div class="grid" id="gameGrid"></div>
+        </div>
+
+        <div class="game-controls">
+            <button class="btn" onclick="shuffleBoard()">🔀 섞기</button>
+            <button class="btn" onclick="newGame()">🆕 새 게임</button>
+            <button class="btn" onclick="showHint()">💡 힌트</button>
+        </div>
+    </div>
+
+    <!-- 무대 데뷔 화면 -->
+    <div id="stageScreen" class="screen">
+        <div class="game-header">
+            <h1 class="game-title">🎤 무대 데뷔 🎭</h1>
+            <button class="btn" onclick="goHome()" style="position: absolute; top: 20px; right: 20px;">🏠 홈으로</button>
+        </div>
+
+        <div class="stage-container">
+            <!-- 무대 배경 -->
+            <div class="stage-backdrop">
+                <div class="stage-lights"></div>
+                <div class="stage-platform">
+                    <!-- 걸그룹 멤버들이 무대에서 공연 -->
+                    <div class="stage-members">
+                        <div class="stage-member" data-member="0">
+                            <div class="member-stage-avatar seoyeon-stage"></div>
+                            <div class="member-stage-name">서연</div>
+                        </div>
+                        <div class="stage-member center" data-member="1">
+                            <div class="member-stage-avatar minji-stage"></div>
+                            <div class="member-stage-name">민지</div>
+                        </div>
+                        <div class="stage-member" data-member="2">
+                            <div class="member-stage-avatar hayeon-stage"></div>
+                            <div class="member-stage-name">하연</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 가사 -->
+                    <div class="lyrics">
+                        <div class="lyrics-container">
+                            <div class="current-lyric" id="currentLyric">준비 중...</div>
+                            <div class="next-lyric" id="nextLyric"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 배경음악 -->
+            <audio id="performanceAudio" preload="auto" loop>
+                <source src="starLightDance.mp3" type="audio/mpeg">
+                <source src="starLightDance.ogg" type="audio/ogg">
+            </audio>
+
+            <!-- 공연 상태 UI -->
+            <div class="performance-ui">
+                <div class="performance-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="audienceScore">0</div>
+                        <div class="stat-label">👥 관객 반응</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="performanceScore">0</div>
+                        <div class="stat-label">🎭 공연 점수</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="albumSales">0</div>
+                        <div class="stat-label">💿 앨범 판매</div>
+                    </div>
+                </div>
+
+                <!-- 공연 제어 -->
+                <div class="performance-controls">
+                    <button class="btn primary performance-btn" onclick="startPerformance()">
+                        🎤 공연 시작
+                    </button>
+                    <button class="btn" onclick="practicePerformance()" disabled>
+                        📝 연습하기
+                    </button>
+                </div>
+
+                <!-- 공연 진행 상황 -->
+                <div class="performance-progress" id="performanceProgress" style="display: none;">
+                    <div class="progress-section">
+                        <h3>🎵 곡 진행</h3>
+                        <div class="song-progress">
+                            <div class="song-bar">
+                                <div class="song-fill" id="songProgress"></div>
+                            </div>
+                            <div class="song-info">
+                                <span id="currentSong">Starlight Dreams</span>
+                                <span id="songTime">0:00 / 1:39</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="live-reactions">
+                        <h3>💝 실시간 반응</h3>
+                        <div class="reaction-feed" id="reactionFeed">
+                            <div class="reaction">😍 우와 너무 멋있어!</div>
+                            <div class="reaction">🔥 무대 진짜 찢었다!</div>
+                            <div class="reaction">💕 서연 표정 완벽해!</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 게임 상태 관리
+        let currentScreen = 'home';
+        let playerData = {
+            totalCoins: 0,
+            completedLevels: 0,
+            groupLevel: 1,
+            members: [
+                {
+                    name: '서연',
+                    level: 1,
+                    hp: 65,        // 체력
+                    emotion: 85,   // 감성 - 서연의 특기
+                    vocal: 70,     // 보컬
+                    dance: 55,     // 댄스
+                    expression: 90, // 표정 - 서연의 최고 능력
+                    power: 60      // 파워
+                },
+                {
+                    name: '민지',
+                    level: 1,
+                    hp: 75,        // 체력
+                    emotion: 70,   // 감성
+                    vocal: 95,     // 보컬 - 민지의 특기 (메인보컬)
+                    dance: 65,     // 댄스
+                    expression: 75, // 표정
+                    power: 90      // 파워 - 센터의 카리스마
+                },
+                {
+                    name: '하연',
+                    level: 1,
+                    hp: 95,        // 체력 - 하연의 특기 (댄서)
+                    emotion: 80,   // 감성
+                    vocal: 55,     // 보컬
+                    dance: 100,    // 댄스 - 하연의 최고 능력
+                    expression: 85, // 표정
+                    power: 70      // 파워
+                }
+            ]
+        };
+
+        // 화면 전환
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+            currentScreen = screenId;
+        }
+
+        function goHome() {
+            showScreen('homeScreen');
+            updateHomeUI();
+        }
+
+        function startGame() {
+            showScreen('gameScreen');
+            newGame();
+        }
+
+        function updateHomeUI() {
+            document.getElementById('totalCoins').textContent = playerData.totalCoins;
+            document.getElementById('completedLevels').textContent = playerData.completedLevels;
+            document.getElementById('groupLevel').textContent = playerData.groupLevel;
+        }
+
+        // 멤버 선택 및 모션 재생
+        function selectMember(index) {
+            const member = playerData.members[index];
+            console.log(`${member.name} 선택됨`);
+            console.log(`레벨: ${member.level}`);
+            console.log(`❤️ 체력: ${member.hp}`);
+            console.log(`😊 감성: ${member.emotion}`);
+            console.log(`🎤 보컬: ${member.vocal}`);
+            console.log(`💃 댄스: ${member.dance}`);
+            console.log(`😍 표정: ${member.expression}`);
+            console.log(`⚡ 파워: ${member.power}`);
+            
+            // 모션 비디오 재생
+            playMemberMotion(index);
+            
+            // 멤버별 상세 정보나 훈련 메뉴 등을 보여줄 수 있음
+        }
+
+        // 멤버 모션 비디오 재생 함수
+        function playMemberMotion(memberIndex) {
+            const memberElement = document.querySelector(`.member:nth-child(${memberIndex + 1})`);
+            const videoElement = memberElement.querySelector('.motion-video');
+            
+            if (videoElement && videoElement.querySelector('source').src) {
+                // 비디오가 이미 재생 중이면 처음부터 다시 시작
+                videoElement.currentTime = 0;
+                
+                // 비디오를 보이게 하고 재생
+                videoElement.classList.add('playing');
+                videoElement.play().catch(e => {
+                    console.log('비디오 재생 실패:', e);
+                    // 비디오 파일이 없으면 CSS 애니메이션으로 대체
+                    playFallbackAnimation(memberElement);
+                });
+                
+                // 비디오 종료 시 숨기기
+                videoElement.addEventListener('ended', function() {
+                    videoElement.classList.remove('playing');
+                }, { once: true });
+                
+                // 3초 후 자동으로 숨기기 (비디오가 길 경우 대비)
+                setTimeout(() => {
+                    videoElement.classList.remove('playing');
+                }, 3000);
+            } else {
+                // 비디오 파일이 없으면 CSS 애니메이션으로 대체
+                playFallbackAnimation(memberElement);
+            }
+        }
+
+        // 비디오 파일이 없을 때 대체 애니메이션
+        function playFallbackAnimation(memberElement) {
+            const avatar = memberElement.querySelector('.member-avatar');
+            avatar.style.animation = 'memberClick 0.6s ease-out';
+            
+            setTimeout(() => {
+                avatar.style.animation = '';
+            }, 600);
+        }
+
+        // 메뉴 기능들
+        function openTraining() {
+            showScreen('trainingScreen');
+        }
+
+        function openShop() {
+            alert('상점 기능은 준비 중입니다! 🛍️');
+        }
+
+        // ===== 앨범 데뷔 시스템 =====
+        function startAlbumDebut() {
+            // 그룹 레벨 체크 (5 이상이어야 데뷔 가능)
+            if (playerData.groupLevel < 0) {
+                alert(`🎤 앨범 데뷔 조건 미달!\n\n현재 그룹 레벨: ${playerData.groupLevel}\n필요 그룹 레벨: 5\n\n더 많은 게임을 클리어하여 그룹을 성장시키세요!`);
+                return;
+            }
+
+            // 무대 화면으로 이동
+            showScreen('stageScreen');
+        }
+
+        function showDebutStage() {
+            // 간단한 데뷔 무대 시뮬레이션
+            let performanceScore = 0;
+            let audienceReaction = 0;
+            
+            // 멤버들의 능력치를 바탕으로 공연 점수 계산
+            playerData.members.forEach(member => {
+                performanceScore += member.vocal * 0.3;
+                performanceScore += member.dance * 0.3; 
+                performanceScore += member.expression * 0.2;
+                performanceScore += member.power * 0.2;
+            });
+            
+            // 기본 점수에 랜덤 요소 추가
+            performanceScore = Math.floor(performanceScore / 3);
+            audienceReaction = Math.floor(performanceScore * 0.8) + Math.floor(Math.random() * 50);
+            
+            // 앨범 판매량 계산
+            const albumSales = Math.floor(performanceScore / 10) + Math.floor(audienceReaction / 15);
+            
+            // 코인 보상 계산
+            const coinReward = albumSales * 5;
+            
+            // 공연 시뮬레이션 메시지들
+            const performanceMessages = [
+                "🎤 무대 위에 올라선 STARLIGHT GIRLS!",
+                "✨ 화려한 조명이 멤버들을 비춥니다!",
+                "🎵 첫 곡이 시작되었습니다!",
+                "👥 관객들이 열광하고 있습니다!",
+                "💃 완벽한 댄스 퍼포먼스!",
+                "🎤 감동적인 보컬 하모니!",
+                "👏 우렁찬 박수가 쏟아집니다!",
+                "🌟 무대를 완전히 장악했습니다!"
+            ];
+            
+            // 순차적으로 메시지 표시
+            let messageIndex = 0;
+            const showNextMessage = () => {
+                if (messageIndex < performanceMessages.length) {
+                    alert(performanceMessages[messageIndex]);
+                    messageIndex++;
+                    setTimeout(showNextMessage, 1000);
+                } else {
+                    // 최종 결과 표시
+                    showDebutResults(performanceScore, audienceReaction, albumSales, coinReward);
+                }
+            };
+            
+            showNextMessage();
+        }
+
+        function showDebutResults(performanceScore, audienceReaction, albumSales, coinReward) {
+            // 성과에 따른 등급 결정
+            let grade = '';
+            let gradeMessage = '';
+            
+            if (performanceScore >= 250) {
+                grade = 'S';
+                gradeMessage = '🏆 완벽한 데뷔! 전설의 시작입니다!';
+            } else if (performanceScore >= 200) {
+                grade = 'A';
+                gradeMessage = '🌟 환상적인 데뷔! 대성공입니다!';
+            } else if (performanceScore >= 150) {
+                grade = 'B';
+                gradeMessage = '✨ 훌륭한 데뷔! 좋은 반응을 얻었습니다!';
+            } else if (performanceScore >= 100) {
+                grade = 'C';
+                gradeMessage = '👍 성공적인 데뷔! 앞으로가 기대됩니다!';
+            } else {
+                grade = 'D';
+                gradeMessage = '😅 아쉬운 데뷔... 다음엔 더 잘할 수 있을 거예요!';
+            }
+            
+            // 플레이어 데이터 업데이트
+            playerData.totalCoins += coinReward;
+            
+            // 모든 멤버 능력치 소폭 증가 (데뷔 경험)
+            playerData.members.forEach(member => {
+                member.vocal = Math.min(member.vocal + 2, 100);
+                member.dance = Math.min(member.dance + 2, 100);
+                member.expression = Math.min(member.expression + 2, 100);
+                member.power = Math.min(member.power + 2, 100);
+            });
+            
+            updateMemberStats();
+            updateHomeUI();
+            
+            // 최종 결과 메시지
+            const resultMessage = `🎉 앨범 데뷔 완료! 🎉\n\n` +
+                `📊 데뷔 성과\n` +
+                `🏆 등급: ${grade}\n` +
+                `🎭 공연 점수: ${performanceScore}\n` +
+                `👥 관객 반응: ${audienceReaction}\n` +
+                `💿 앨범 판매: ${albumSales}장\n` +
+                `💰 획득 코인: ${coinReward}\n\n` +
+                `${gradeMessage}\n\n` +
+                `✨ 모든 멤버의 능력치가 향상되었습니다!`;
+            
+            alert(resultMessage);
+        }
+
+        // ===== 무대 공연 시스템 (idol.html에서 가져옴) =====
+        let performanceData = {
+            isPerforming: false,
+            songDuration: 99,
+            currentTime: 0,
+            audienceScore: 0,
+            performanceScore: 0,
+            albumSales: 0,
+            reactions: [
+                '😍 우와 너무 멋있어!',
+                '🔥 무대 진짜 찢었다!',
+                '💕 서연 표정 완벽해!',
+                '✨ 민지 센터 너무 좋아!',
+                '🎤 하연 댄스 미쳤다!',
+                '👏 박수 쏟아져!',
+                '💖 완전 사랑해!',
+                '🎵 이 노래 너무 좋아!',
+                '🌟 진짜 스타 같아!',
+                '💫 무대 장악력 대박!'
+            ]
+        };
+
+        function startPerformance() {
+            if (performanceData.isPerforming) return;
+
+            console.log("무대 공연 시작!");
+            performanceData.isPerforming = true;
+            performanceData.currentTime = 0;
+            performanceData.audienceScore = 0;
+            performanceData.performanceScore = 0;
+            performanceData.albumSales = 0;
+
+            // 가사 초기화
+            document.getElementById('currentLyric').textContent = "🎵 Starlight Dreams 🎵";
+            document.getElementById('nextLyric').textContent = "어둠 속에 빛이 번져";
+
+            // 배경음악 재생 시도
+            const audio = document.getElementById('performanceAudio');
+            audio.volume = 0.6;
+            audio.currentTime = 0;
+            audio.play().catch(e => {
+                console.log("오디오 재생 실패:", e);
+            });
+
+            // UI 업데이트
+            document.getElementById('performanceProgress').style.display = 'block';
+            document.querySelector('.performance-btn').textContent = '🎤 공연 중...';
+            document.querySelector('.performance-btn').disabled = true;
+
+            // 멤버들 공연 시작 애니메이션
+            const members = document.querySelectorAll('.stage-member');
+            members.forEach((member, index) => {
+                setTimeout(() => {
+                    member.classList.add('dancing');
+                }, index * 200);
+            });
+
+            // 공연 타이머 시작
+            const performanceTimer = setInterval(() => {
+                if (!performanceData.isPerforming) {
+                    clearInterval(performanceTimer);
+                    return;
+                }
+
+                performanceData.currentTime++;
+                updatePerformanceUI();
+
+                // 실시간 반응 추가
+                if (performanceData.currentTime % 15 === 0) {
+                    addRandomReaction();
+                }
+
+                // 점수 계산
+                const scoreIncrease = calculatePerformanceScore();
+                performanceData.performanceScore += scoreIncrease;
+                performanceData.audienceScore += Math.floor(scoreIncrease * 0.8);
+
+                // 공연 종료 체크
+                if (performanceData.currentTime >= performanceData.songDuration) {
+                    endPerformance();
+                    clearInterval(performanceTimer);
+                }
+            }, 1000);
+        }
+
+        function calculatePerformanceScore() {
+            const members = playerData.members;
+            let totalScore = 0;
+
+            members.forEach((member, index) => {
+                const memberScore = (
+                    member.vocal * 0.3 +
+                    member.dance * 0.3 +
+                    member.expression * 0.2 +
+                    member.power * 0.2
+                ) / 100;
+                totalScore += memberScore;
+            });
+
+            const baseScore = Math.floor(totalScore * 3);
+            const randomBonus = Math.floor(Math.random() * 3);
+            
+            return baseScore + randomBonus;
+        }
+
+        function updatePerformanceUI() {
+            // 시간 진행률
+            const progress = (performanceData.currentTime / performanceData.songDuration) * 100;
+            document.getElementById('songProgress').style.width = progress + '%';
+
+            // 시간 표시
+            const minutes = Math.floor(performanceData.currentTime / 60);
+            const seconds = performanceData.currentTime % 60;
+            const totalMinutes = Math.floor(performanceData.songDuration / 60);
+            const totalSeconds = performanceData.songDuration % 60;
+            
+            document.getElementById('songTime').textContent = 
+                `${minutes}:${seconds.toString().padStart(2, '0')} / ${totalMinutes}:${totalSeconds.toString().padStart(2, '0')}`;
+
+            // 점수 업데이트
+            document.getElementById('audienceScore').textContent = performanceData.audienceScore;
+            document.getElementById('performanceScore').textContent = performanceData.performanceScore;
+            document.getElementById('albumSales').textContent = performanceData.albumSales;
+        }
+
+        function addRandomReaction() {
+            const reactions = performanceData.reactions;
+            const randomReaction = reactions[Math.floor(Math.random() * reactions.length)];
+            
+            const reactionFeed = document.getElementById('reactionFeed');
+            const newReaction = document.createElement('div');
+            newReaction.className = 'reaction';
+            newReaction.textContent = randomReaction;
+            
+            // 새 반응을 맨 위에 추가
+            reactionFeed.insertBefore(newReaction, reactionFeed.firstChild);
+            
+            // 오래된 반응 제거 (최대 5개 유지)
+            while (reactionFeed.children.length > 5) {
+                reactionFeed.removeChild(reactionFeed.lastChild);
+            }
+
+            // 관객 점수 소폭 증가
+            performanceData.audienceScore += Math.floor(Math.random() * 5) + 1;
+        }
+
+        function endPerformance() {
+            console.log("무대 공연 종료!");
+            performanceData.isPerforming = false;
+
+            // 배경음악 정지
+            const audio = document.getElementById('performanceAudio');
+            audio.pause();
+            audio.currentTime = 0;
+
+            // 멤버 애니메이션 중지
+            const members = document.querySelectorAll('.stage-member');
+            members.forEach(member => {
+                member.classList.remove('dancing');
+            });
+
+            // 최종 점수 계산
+            const finalScore = performanceData.performanceScore;
+            const finalAudienceScore = performanceData.audienceScore;
+            
+            // 앨범 판매량 계산
+            performanceData.albumSales = Math.floor(finalScore / 10) + Math.floor(finalAudienceScore / 15);
+
+            // 경험치 및 보상 지급
+            const coinReward = Math.floor(performanceData.albumSales * 5);
+
+            // 모든 멤버 경험치 증가
+            playerData.members.forEach(member => {
+                member.vocal = Math.min(member.vocal + 1, 100);
+                member.dance = Math.min(member.dance + 1, 100);
+                member.expression = Math.min(member.expression + 1, 100);  
+                member.power = Math.min(member.power + 1, 100);
+            });
+
+            // 플레이어 데이터 업데이트
+            playerData.totalCoins += coinReward;
+            updateMemberStats();
+
+            // UI 리셋
+            document.querySelector('.performance-btn').textContent = '🎤 공연 시작';
+            document.querySelector('.performance-btn').disabled = false;
+
+            // 결과 메시지
+            setTimeout(() => {
+                const message = `🎉 공연 성공!\n\n` +
+                    `🎭 공연 점수: ${finalScore}\n` +
+                    `👥 관객 반응: ${finalAudienceScore}\n` +
+                    `💿 앨범 판매: ${performanceData.albumSales}장\n` +
+                    `💰 획득 코인: ${coinReward}\n\n` +
+                    `✨ 모든 멤버의 능력치가 향상되었습니다!`;
+                
+                alert(message);
+            }, 1000);
+        }
+
+        function practicePerformance() {
+            alert('연습 기능은 준비 중입니다! 🎭');
+        }
+
+        // ===== 달리기 게임 시스템 =====
+        let runningGame = {
+            isPlaying: false,
+            distance: 0,
+            speed: 0,
+            stamina: 100,
+            targetRhythm: 1000, // 1초마다 클릭해야 함
+            lastClickTime: 0,
+            perfectClicks: 0,
+            goodClicks: 0,
+            badClicks: 0,
+            totalClicks: 0
+        };
+
+        function startRunningGame() {
+            showScreen('runningGameScreen');
+            resetRunningGame();
+        }
+
+        function resetRunningGame() {
+            runningGame = {
+                isPlaying: true,
+                distance: 0,
+                speed: 0,
+                stamina: 100,
+                targetRhythm: 1000,
+                lastClickTime: Date.now(),
+                perfectClicks: 0,
+                goodClicks: 0,
+                badClicks: 0,
+                totalClicks: 0
+            };
+
+            updateRunningUI();
+
+            // 스태미나 자동 감소
+            const staminaTimer = setInterval(() => {
+                if (!runningGame.isPlaying) {
+                    clearInterval(staminaTimer);
+                    return;
+                }
+
+                runningGame.stamina -= 0.3; // 조금 더 천천히 감소
+                if (runningGame.stamina <= 0) {
+                    runningGame.stamina = 0;
+                    endRunningGame();
+                    clearInterval(staminaTimer);
+                }
+
+                updateRunningUI();
+            }, 100);
+
+            console.log("달리기 게임 시작!");
+        }
+
+        function runStep() {
+            if (!runningGame.isPlaying || runningGame.stamina <= 0) return;
+
+            const currentTime = Date.now();
+            const timeSinceLastClick = currentTime - runningGame.lastClickTime;
+            const runBtn = document.getElementById('runBtn');
+            const runner = document.getElementById('runner');
+
+            // 타이밍 판정
+            let result = '';
+            let speedIncrease = 0;
+            let staminaCost = 0;
+
+            if (timeSinceLastClick >= 800 && timeSinceLastClick <= 1200) {
+                // Perfect 타이밍 (800ms - 1200ms)
+                result = 'perfect';
+                speedIncrease = 3;
+                staminaCost = 2;
+                runningGame.perfectClicks++;
+            } else if (timeSinceLastClick >= 600 && timeSinceLastClick <= 1400) {
+                // Good 타이밍 (600ms - 1400ms)
+                result = 'good';
+                speedIncrease = 2;
+                staminaCost = 3;
+                runningGame.goodClicks++;
+            } else {
+                // Bad 타이밍
+                result = 'bad';
+                speedIncrease = 1;
+                staminaCost = 5;
+                runningGame.badClicks++;
+            }
+
+            // 버튼 효과
+            runBtn.className = `btn primary running-btn ${result}`;
+            setTimeout(() => {
+                runBtn.className = 'btn primary running-btn';
+            }, 300);
+
+            // 러너 애니메이션
+            runner.classList.add('running');
+            setTimeout(() => {
+                runner.classList.remove('running');
+            }, 300);
+
+            // 게임 상태 업데이트
+            runningGame.speed = speedIncrease;
+            runningGame.distance += speedIncrease;
+            runningGame.stamina -= staminaCost;
+            runningGame.totalClicks++;
+            runningGame.lastClickTime = currentTime;
+
+            if (runningGame.stamina < 0) runningGame.stamina = 0;
+            updateRunningUI();
+
+            // 100m 완주 체크
+            if (runningGame.distance >= 100) {
+                endRunningGame();
+            }
+
+            console.log(`${result.toUpperCase()}! 속도: ${speedIncrease}, 거리: ${runningGame.distance}m`);
+        }
+
+        function updateRunningUI() {
+            document.getElementById('runDistance').textContent = Math.floor(runningGame.distance) + 'm';
+            document.getElementById('runSpeed').textContent = runningGame.speed;
+            document.getElementById('runStamina').textContent = Math.floor(runningGame.stamina);
+
+            // 진행바 업데이트 (100m 기준)
+            const progress = Math.min(runningGame.distance / 100 * 100, 100);
+            document.getElementById('runProgress').style.width = progress + '%';
+
+            // 스태미나 바 업데이트
+            const staminaBar = document.getElementById('staminaBar');
+            const staminaPercent = Math.max(runningGame.stamina, 0);
+            
+            staminaBar.style.width = staminaPercent + '%';
+
+            // 스태미나 수준에 따른 색상 변경
+            staminaBar.className = 'stamina-fill';
+            if (staminaPercent <= 10) {
+                staminaBar.classList.add('critical');
+            } else if (staminaPercent <= 25) {
+                staminaBar.classList.add('low');
+            } else if (staminaPercent <= 50) {
+                staminaBar.classList.add('medium');
+            }
+
+            // 스태미나가 위험 수준일 때 카드 전체도 강조
+            const staminaCard = staminaBar.closest('.stat-card');
+            if (staminaPercent <= 25) {
+                staminaCard.style.border = '2px solid #ff4757';
+                staminaCard.style.boxShadow = '0 0 20px rgba(255,71,87,0.3)';
+            } else {
+                staminaCard.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+                staminaCard.style.boxShadow = 'none';
+            }
+        }
+
+        function endRunningGame() {
+            runningGame.isPlaying = false;
+
+            // 성과 계산
+            const totalClicks = runningGame.totalClicks;
+            const successRate = totalClicks > 0 ? 
+                (runningGame.perfectClicks * 2 + runningGame.goodClicks) / (totalClicks * 2) : 0;
+
+            let hpIncrease = 0;
+            let message = '';
+
+            if (runningGame.distance >= 100) {
+                // 완주 성공
+                hpIncrease = Math.floor(3 + successRate * 5); // 3~8 증가
+                message = `🏆 완주 성공!\n체력 +${hpIncrease}\n성공률: ${Math.floor(successRate * 100)}%`;
+            } else if (runningGame.distance >= 50) {
+                // 절반 이상
+                hpIncrease = Math.floor(1 + successRate * 3); // 1~4 증가
+                message = `👍 절반 이상 완주!\n체력 +${hpIncrease}\n거리: ${Math.floor(runningGame.distance)}m`;
+            } else {
+                // 실패
+                hpIncrease = 1;
+                message = `😅 아쉽네요!\n체력 +${hpIncrease}\n거리: ${Math.floor(runningGame.distance)}m`;
+            }
+
+            // 모든 멤버의 체력 증가
+            playerData.members.forEach(member => {
+                member.hp = Math.min(member.hp + hpIncrease, 100);
+            });
+
+            updateMemberStats();
+
+            setTimeout(() => {
+                alert(message);
+                showScreen('trainingScreen');
+            }, 1000);
+
+            console.log(`게임 종료: ${message}`);
+        }
+
+        function exitRunningGame() {
+            runningGame.isPlaying = false;
+            showScreen('trainingScreen');
+        }
+
+        function updateMemberStats() {
+            // 홈 화면의 스탯 바 업데이트
+            const members = ['seoyeon', 'minji', 'hayeon'];
+            playerData.members.forEach((member, index) => {
+                const memberPrefix = members[index];
+                document.getElementById(`${memberPrefix}-hp`).style.width = member.hp + '%';
+                document.getElementById(`${memberPrefix}-emotion`).style.width = member.emotion + '%';
+                document.getElementById(`${memberPrefix}-vocal`).style.width = member.vocal + '%';
+                document.getElementById(`${memberPrefix}-dance`).style.width = member.dance + '%';
+                document.getElementById(`${memberPrefix}-expression`).style.width = member.expression + '%';
+                document.getElementById(`${memberPrefix}-power`).style.width = member.power + '%';
+            });
+        }
+
+        // === 매치3 게임 로직 ===
+        const BLOCK_TYPES = [
+            { symbol: '🎤', class: 'mic', name: '마이크' },
+            { symbol: '🎧', class: 'headphones', name: '헤드폰' },
+            { symbol: '🎇', class: 'lightstick', name: '응원봉' },
+            { symbol: '🎵', class: 'note', name: '음표' }
+        ];
+
+        let gameBoard = [];
+        let selectedCell = null;
+        let score = 0;
+        let coins = 0;
+        let level = 1;
+        let moves = 30;
+        let isAnimating = false;
+        let isDragging = false;
+        let dragStartCell = null;
+        let mouseStartX = 0;
+        let mouseStartY = 0;
+        let dragThreshold = 30;
+
+        const levelTargets = {
+            1: 3000,
+            2: 5000,
+            3: 7000
+        };
+
+        function initGame() {
+            gameBoard = [];
+            do {
+                for (let i = 0; i < 8; i++) {
+                    gameBoard[i] = [];
+                    for (let j = 0; j < 8; j++) {
+                        gameBoard[i][j] = Math.floor(Math.random() * BLOCK_TYPES.length);
+                    }
+                }
+            } while (findMatches().length > 0);
+
+            renderBoard();
+            console.log("게임 초기화 완료");
+        }
+
+        function renderBoard() {
+            const grid = document.getElementById('gameGrid');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < 8; i++) {
+                for (let j = 0; j < 8; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = i;
+                    cell.dataset.col = j;
+
+                    const blockType = BLOCK_TYPES[gameBoard[i][j]];
+                    const block = document.createElement('div');
+                    block.className = `block ${blockType.class}`;
+                    // 심볼 속성 및 텍스트 설정 완전히 제거
+
+                    cell.appendChild(block);
+
+                    cell.addEventListener('mousedown', handleMouseDown);
+                    cell.addEventListener('touchstart', handleTouchStart, { passive: false });
+
+                    if (Math.random() < 0.1) {
+                        addSparkle(cell);
+                    }
+
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        function addSparkle(cell) {
+            setTimeout(() => {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                sparkle.style.left = Math.random() * 50 + 'px';
+                sparkle.style.top = Math.random() * 50 + 'px';
+                cell.appendChild(sparkle);
+
+                setTimeout(() => {
+                    if (sparkle.parentNode) {
+                        sparkle.parentNode.removeChild(sparkle);
+                    }
+                }, 1000);
+            }, Math.random() * 3000);
+        }
+
+        // 드래그 핸들러들
+        function handleMouseDown(e) {
+            if (isAnimating) return;
+
+            e.preventDefault();
+            isDragging = false;
+
+            dragStartCell = {
+                row: parseInt(e.target.closest('.cell').dataset.row),
+                col: parseInt(e.target.closest('.cell').dataset.col)
+            };
+
+            mouseStartX = e.clientX;
+            mouseStartY = e.clientY;
+
+            e.target.closest('.cell').classList.add('drag-start');
+
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+
+            console.log(`드래그 준비: (${dragStartCell.row}, ${dragStartCell.col})`);
+        }
+
+        function handleTouchStart(e) {
+            if (isAnimating) return;
+
+            e.preventDefault();
+            isDragging = false;
+
+            const touch = e.touches[0];
+            dragStartCell = {
+                row: parseInt(e.target.closest('.cell').dataset.row),
+                col: parseInt(e.target.closest('.cell').dataset.col)
+            };
+
+            mouseStartX = touch.clientX;
+            mouseStartY = touch.clientY;
+
+            e.target.closest('.cell').classList.add('drag-start');
+
+            document.addEventListener('touchmove', handleTouchMove, { passive: false });
+            document.addEventListener('touchend', handleTouchEnd);
+        }
+
+        function handleMouseMove(e) {
+            if (!dragStartCell) return;
+
+            const deltaX = e.clientX - mouseStartX;
+            const deltaY = e.clientY - mouseStartY;
+            const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+            if (distance > dragThreshold && !isDragging) {
+                isDragging = true;
+                document.querySelector(`[data-row="${dragStartCell.row}"][data-col="${dragStartCell.col}"]`).classList.add('dragging');
+            }
+
+            if (isDragging) {
+                checkDragDirection(deltaX, deltaY);
+            }
+        }
+
+        function handleTouchMove(e) {
+            if (!dragStartCell) return;
+
+            e.preventDefault();
+            const touch = e.touches[0];
+            const deltaX = touch.clientX - mouseStartX;
+            const deltaY = touch.clientY - mouseStartY;
+            const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+            if (distance > dragThreshold && !isDragging) {
+                isDragging = true;
+                document.querySelector(`[data-row="${dragStartCell.row}"][data-col="${dragStartCell.col}"]`).classList.add('dragging');
+            }
+
+            if (isDragging) {
+                checkDragDirection(deltaX, deltaY);
+            }
+        }
+
+        function checkDragDirection(deltaX, deltaY) {
+            let targetRow = dragStartCell.row;
+            let targetCol = dragStartCell.col;
+
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                if (deltaX > 0 && dragStartCell.col < 7) {
+                    targetCol = dragStartCell.col + 1;
+                } else if (deltaX < 0 && dragStartCell.col > 0) {
+                    targetCol = dragStartCell.col - 1;
+                }
+            } else {
+                if (deltaY > 0 && dragStartCell.row < 7) {
+                    targetRow = dragStartCell.row + 1;
+                } else if (deltaY < 0 && dragStartCell.row > 0) {
+                    targetRow = dragStartCell.row - 1;
+                }
+            }
+
+            document.querySelectorAll('.drag-target').forEach(cell => {
+                cell.classList.remove('drag-target');
+            });
+
+            if (targetRow !== dragStartCell.row || targetCol !== dragStartCell.col) {
+                const targetCell = document.querySelector(`[data-row="${targetRow}"][data-col="${targetCol}"]`);
+                if (targetCell) {
+                    targetCell.classList.add('drag-target');
+                }
+            }
+        }
+
+        function handleMouseUp(e) {
+            finishDrag();
+        }
+
+        function handleTouchEnd(e) {
+            finishDrag();
+        }
+
+        function finishDrag() {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+            document.removeEventListener('touchmove', handleTouchMove);
+            document.removeEventListener('touchend', handleTouchEnd);
+
+            if (isDragging && dragStartCell) {
+                const targetCell = document.querySelector('.drag-target');
+                if (targetCell) {
+                    const targetRow = parseInt(targetCell.dataset.row);
+                    const targetCol = parseInt(targetCell.dataset.col);
+
+                    console.log(`블록 이동: (${dragStartCell.row}, ${dragStartCell.col}) -> (${targetRow}, ${targetCol})`);
+
+                    swapBlocks(dragStartCell.row, dragStartCell.col, targetRow, targetCol);
+                }
+            }
+
+            document.querySelectorAll('.drag-start, .dragging, .drag-target').forEach(cell => {
+                cell.classList.remove('drag-start', 'dragging', 'drag-target');
+            });
+
+            isDragging = false;
+            dragStartCell = null;
+        }
+
+        function isAdjacent(row1, col1, row2, col2) {
+            const rowDiff = Math.abs(row1 - row2);
+            const colDiff = Math.abs(col1 - col2);
+            return (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
+        }
+
+        function swapBlocks(row1, col1, row2, col2) {
+            console.log(`블록 교환 시도: (${row1},${col1}) <-> (${row2},${col2})`);
+            console.log(`교환 전: ${gameBoard[row1][col1]} <-> ${gameBoard[row2][col2]}`);
+
+            const temp = gameBoard[row1][col1];
+            gameBoard[row1][col1] = gameBoard[row2][col2];
+            gameBoard[row2][col2] = temp;
+
+            const matches = findMatches();
+            console.log(`매치 확인 결과: ${matches.length}개 매치 발견`);
+
+            if (matches.length > 0) {
+                moves--;
+                console.log("매치 성공! 이펙트와 함께 제거");
+                renderBoard();
+                updateScore();
+                setTimeout(() => {
+                    removeMatches(matches);
+                }, 100);
+            } else {
+                console.log("매치 없음 - 원래대로 복구");
+                const temp = gameBoard[row1][col1];
+                gameBoard[row1][col1] = gameBoard[row2][col2];
+                gameBoard[row2][col2] = temp;
+                renderBoard();
+                updateScore();
+
+                const targetScore = levelTargets[level];
+                console.log(`강제 게임 종료 체크: 현재점수=${score}, 목표점수=${targetScore}, 레벨=${level}, 남은이동=${moves}`);
+
+                if (score >= targetScore) {
+                    console.log("🎉 레벨 클리어 조건 달성!");
+                    setTimeout(() => {
+                        levelClearToHome();
+                    }, 500);
+                } else if (moves <= 0) {
+                    console.log("💀 게임 오버 - 이동 횟수 부족");
+                    setTimeout(() => {
+                        alert(`게임 종료!\n달성 점수: ${score} / ${targetScore}\n획득 코인: ${coins}\n\n다시 도전해보세요!`);
+                        newGame();
+                    }, 500);
+                }
+            }
+        }
+
+        function findMatches() {
+            const matches = [];
+
+            for (let i = 0; i < 8; i++) {
+                for (let j = 0; j < 6; j++) {
+                    if (gameBoard[i][j] === gameBoard[i][j+1] && gameBoard[i][j] === gameBoard[i][j+2]) {
+                        const match = [{row: i, col: j}, {row: i, col: j+1}, {row: i, col: j+2}];
+                        for (let k = j+3; k < 8 && gameBoard[i][k] === gameBoard[i][j]; k++) {
+                            match.push({row: i, col: k});
+                        }
+                        matches.push(match);
+                        j += match.length - 1;
+                    }
+                }
+            }
+
+            for (let j = 0; j < 8; j++) {
+                for (let i = 0; i < 6; i++) {
+                    if (gameBoard[i][j] === gameBoard[i+1][j] && gameBoard[i][j] === gameBoard[i+2][j]) {
+                        const match = [{row: i, col: j}, {row: i+1, col: j}, {row: i+2, col: j}];
+                        for (let k = i+3; k < 8 && gameBoard[k][j] === gameBoard[i][j]; k++) {
+                            match.push({row: k, col: j});
+                        }
+                        matches.push(match);
+                        i += match.length - 1;
+                    }
+                }
+            }
+
+            return matches;
+        }
+
+        function removeMatches(matches) {
+            isAnimating = true;
+            console.log("매치 처리 시작:", matches);
+
+            const flash = document.createElement('div');
+            flash.className = 'screen-flash';
+            document.body.appendChild(flash);
+            setTimeout(() => document.body.removeChild(flash), 400);
+
+            matches.forEach((match, matchIndex) => {
+                console.log(`매치 ${matchIndex + 1}: ${match.length}개 블록`);
+
+                match.forEach((pos, cellIndex) => {
+                    const cell = document.querySelector(`[data-row="${pos.row}"][data-col="${pos.col}"]`);
+
+                    cell.classList.add('destroying');
+
+                    setTimeout(() => {
+                        const explosion = document.createElement('div');
+                        explosion.className = 'match-effect match-explosion';
+                        cell.appendChild(explosion);
+
+                        for (let i = 1; i <= 8; i++) {
+                            const sparkle = document.createElement('div');
+                            sparkle.className = `sparkle-burst sparkle-${i}`;
+                            cell.appendChild(sparkle);
+                        }
+
+                        setTimeout(() => {
+                            if (explosion.parentNode) explosion.parentNode.removeChild(explosion);
+                            cell.querySelectorAll('.sparkle-burst').forEach(sparkle => {
+                                if (sparkle.parentNode) sparkle.parentNode.removeChild(sparkle);
+                            });
+                        }, 800);
+                    }, cellIndex * 50);
+                });
+            });
+
+            setTimeout(() => {
+                matches.forEach((match, matchIndex) => {
+                    console.log(`매치 ${matchIndex + 1} 처리 중: ${match.length}개`);
+
+                    match.forEach(pos => {
+                        gameBoard[pos.row][pos.col] = -1;
+                    });
+
+                    const scoreGained = match.length * 100 * level;
+                    score += scoreGained;
+                    console.log(`점수 획득: +${scoreGained} (총: ${score})`);
+
+                    if (match.length >= 4) {
+                        const coinsEarned = match.length;
+                        coins += coinsEarned;
+                        console.log(`🎉 ${match.length}개 매치! ${coinsEarned}코인 획득! (총 코인: ${coins})`);
+
+                        document.getElementById('coins').textContent = coins;
+                        document.getElementById('coins').style.color = '#00ff00';
+                        setTimeout(() => {
+                            document.getElementById('coins').style.color = '#ffd700';
+                        }, 500);
+
+                        showCoinEffect(match, coinsEarned);
+                    } else {
+                        console.log(`3개 매치 - 코인 없음`);
+                    }
+                });
+
+                document.querySelectorAll('.destroying').forEach(cell => {
+                    cell.classList.remove('destroying');
+                });
+
+                dropBlocks();
+                fillEmpty();
+                renderBoard();
+                updateScore();
+
+                setTimeout(() => {
+                    const newMatches = findMatches();
+                    if (newMatches.length > 0) {
+                        removeMatches(newMatches);
+                    } else {
+                        isAnimating = false;
+                        console.log("연쇄 매치 끝 - 최종 게임 종료 체크");
+                        const targetScore = levelTargets[level];
+                        console.log(`강제 게임 종료 체크: 현재점수=${score}, 목표점수=${targetScore}, 레벨=${level}, 남은이동=${moves}`);
+
+                        if (score >= targetScore) {
+                            console.log("🎉 레벨 클리어 조건 달성!");
+                            setTimeout(() => {
+                                levelClearToHome();
+                            }, 500);
+                        } else if (moves <= 0) {
+                            console.log("💀 게임 오버 - 이동 횟수 부족");
+                            setTimeout(() => {
+                                alert(`게임 종료!\n달성 점수: ${score} / ${targetScore}\n획득 코인: ${coins}\n\n다시 도전해보세요!`);
+                                newGame();
+                            }, 500);
+                        } else {
+                            console.log("게임 계속 진행");
+                        }
+                    }
+                }, 300);
+            }, 800);
+        }
+
+        function showCoinEffect(match, coinsEarned) {
+            const firstCell = match[0];
+            const cellElement = document.querySelector(`[data-row="${firstCell.row}"][data-col="${firstCell.col}"]`);
+
+            if (cellElement) {
+                const coinEffect = document.createElement('div');
+                coinEffect.className = 'coin-effect';
+                coinEffect.textContent = `+${coinsEarned} 💰`;
+
+                const rect = cellElement.getBoundingClientRect();
+                coinEffect.style.position = 'fixed';
+                coinEffect.style.left = (rect.left + rect.width/2) + 'px';
+                coinEffect.style.top = (rect.top + rect.height/2) + 'px';
+                coinEffect.style.transform = 'translate(-50%, -50%)';
+
+                document.body.appendChild(coinEffect);
+
+                setTimeout(() => {
+                    if (coinEffect.parentNode) {
+                        coinEffect.parentNode.removeChild(coinEffect);
+                    }
+                }, 1500);
+            }
+        }
+
+        // 레벨 클리어 시 홈으로 이동
+        function levelClearToHome() {
+            console.log("레벨 클리어 화면 생성 시작");
+            const overlay = document.createElement('div');
+            overlay.className = 'clear-overlay';
+
+            const clearMessage = document.createElement('div');
+            clearMessage.className = 'clear-message';
+
+            const title = document.createElement('h1');
+            title.className = 'clear-title';
+            title.textContent = 'CLEAR!';
+
+            const stats = document.createElement('div');
+            stats.className = 'clear-stats';
+            stats.innerHTML = `
+                <div>🎉 레벨 ${level} 클리어!</div>
+                <div>🎯 획득 점수: ${score}점</div>
+                <div>💰 획득 코인: ${coins}개</div>
+            `;
+
+            const homeButton = document.createElement('button');
+            homeButton.className = 'clear-button';
+            homeButton.textContent = '🏠 홈으로 돌아가기';
+            homeButton.onclick = () => {
+                console.log("홈 버튼 클릭");
+                document.body.removeChild(overlay);
+
+                // 플레이어 데이터 업데이트
+                playerData.totalCoins += coins;
+                playerData.completedLevels = Math.max(playerData.completedLevels, level);
+
+                // 홈으로 이동
+                goHome();
+            };
+
+            clearMessage.appendChild(title);
+            clearMessage.appendChild(stats);
+            clearMessage.appendChild(homeButton);
+            overlay.appendChild(clearMessage);
+            document.body.appendChild(overlay);
+
+            console.log("레벨 클리어 화면 DOM에 추가 완료");
+        }
+
+        function dropBlocks() {
+            for (let j = 0; j < 8; j++) {
+                let writeIndex = 7;
+                for (let i = 7; i >= 0; i--) {
+                    if (gameBoard[i][j] !== -1) {
+                        gameBoard[writeIndex][j] = gameBoard[i][j];
+                        if (writeIndex !== i) {
+                            gameBoard[i][j] = -1;
+                        }
+                        writeIndex--;
+                    }
+                }
+            }
+        }
+
+        function fillEmpty() {
+            for (let i = 0; i < 8; i++) {
+                for (let j = 0; j < 8; j++) {
+                    if (gameBoard[i][j] === -1) {
+                        gameBoard[i][j] = Math.floor(Math.random() * BLOCK_TYPES.length);
+                    }
+                }
+            }
+        }
+
+        function updateScore() {
+            console.log(`점수 업데이트: 점수=${score}, 코인=${coins}, 레벨=${level}`);
+
+            const scoreElement = document.getElementById('score');
+            const coinsElement = document.getElementById('coins');
+            const levelElement = document.getElementById('level');
+            const movesElement = document.getElementById('moves');
+            const targetElement = document.getElementById('target');
+
+            if (scoreElement) scoreElement.textContent = score;
+            if (coinsElement) {
+                coinsElement.textContent = coins;
+                console.log(`코인 UI 업데이트: ${coins}`);
+            }
+            if (levelElement) levelElement.textContent = level;
+            if (movesElement) movesElement.textContent = moves;
+
+            const targetScore = levelTargets[level] || 7000;
+            if (targetElement) targetElement.textContent = `/ ${targetScore}`;
+
+            document.body.offsetHeight;
+        }
+
+        function newGame() {
+            score = 0;
+            coins = 0;
+            level = 1;
+            moves = 30;
+            selectedCell = null;
+            isAnimating = false;
+            updateScore();
+            initGame();
+        }
+
+        function shuffleBoard() {
+            if (moves > 0) {
+                moves--;
+                for (let i = 0; i < 8; i++) {
+                    for (let j = 0; j < 8; j++) {
+                        gameBoard[i][j] = Math.floor(Math.random() * BLOCK_TYPES.length);
+                    }
+                }
+                renderBoard();
+                updateScore();
+            }
+        }
+
+        function showHint() {
+            if (moves > 0) {
+                moves--;
+                updateScore();
+                const row = Math.floor(Math.random() * 8);
+                const col = Math.floor(Math.random() * 8);
+                const hintCell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                hintCell.style.boxShadow = '0 0 20px #ffd700';
+
+                setTimeout(() => {
+                    hintCell.style.boxShadow = '';
+                }, 2000);
+            }
+        }
+
+        // 스플래시 화면 관리
+        function showSplashScreen() {
+            // 스플래시 화면 표시
+            document.getElementById('splashScreen').style.display = 'flex';
+            
+            // 홈 화면 숨기기
+            document.getElementById('homeScreen').classList.remove('active');
+            
+            // 3초 후 홈 화면으로 전환
+            setTimeout(() => {
+                hideSplashScreen();
+            }, 3000);
+        }
+
+        function hideSplashScreen() {
+            const splashScreen = document.getElementById('splashScreen');
+            
+            // 페이드 아웃 효과
+            splashScreen.classList.add('fade-out');
+            
+            // 애니메이션 완료 후 스플래시 화면 제거 및 홈 화면 표시
+            setTimeout(() => {
+                splashScreen.style.display = 'none';
+                document.getElementById('homeScreen').classList.add('active');
+                currentScreen = 'homeScreen';
+            }, 500);
+        }
+
+        // 앱 초기화 및 스플래시 화면 표시
+        function initApp() {
+            // 게임 데이터 초기화
+            updateHomeUI();
+            updateMemberStats();
+            
+            // 스플래시 화면 표시
+            showSplashScreen();
+        }
+
+        // 페이지 로드 시 앱 초기화
+        window.addEventListener('load', initApp);
+
+        // 키보드 이벤트 (달리기 게임용)
+        document.addEventListener('keydown', function(e) {
+            if (e.code === 'Space' && currentScreen === 'runningGameScreen') {
+                e.preventDefault();
+                runStep();
+            }
+        });
+    </script>
+</body>
+</html>
