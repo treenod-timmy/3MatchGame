@@ -1608,6 +1608,116 @@
             text-align: center;
         }
 
+        /* ===== 커스텀 팝업 스타일 ===== */
+        .custom-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: popupFadeIn 0.3s ease-out;
+        }
+
+        @keyframes popupFadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        .custom-popup {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(240,240,255,0.95));
+            border-radius: 25px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 
+                0 20px 60px rgba(0,0,0,0.3),
+                inset 0 1px 0 rgba(255,255,255,0.8);
+            border: 2px solid rgba(255,255,255,0.5);
+            text-align: center;
+            animation: popupSlideIn 0.4s ease-out;
+            position: relative;
+        }
+
+        @keyframes popupSlideIn {
+            0% { 
+                opacity: 0; 
+                transform: translateY(-50px) scale(0.9); 
+            }
+            100% { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            }
+        }
+
+        .popup-title {
+            font-size: 2.2em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .popup-content {
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #34495e;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .popup-stats {
+            background: rgba(255,255,255,0.7);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .popup-stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        .popup-grade-message {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .popup-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .popup-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .popup-button:active {
+            transform: translateY(0);
+        }
+
         /* ===== 연습 화면 공통 스타일 =====*/
         .training-controls {
             text-align: center;
@@ -2653,8 +2763,7 @@
 
             <!-- 배경음악 -->
             <audio id="performanceAudio" preload="auto" loop>
-                <source src="./Res/starLightDance.mp3" type="audio/mpeg">
-                <source src="./Res/starLightDance.ogg" type="audio/ogg">
+                <source src="./Res/starLightDance.mp3" type="audio/mpeg" id="audioSource">
             </audio>
 
             <!-- 공연 상태 UI -->
@@ -2801,6 +2910,12 @@
                 performanceBtn.disabled = false;
             }
             
+            // 홈으로 버튼 다시 보이기
+            const homeButton = document.querySelector('button[onclick="goHome()"]');
+            if (homeButton) {
+                homeButton.style.display = 'block';
+            }
+            
             showScreen('homeScreen');
             updateHomeUI();
         }
@@ -2822,7 +2937,7 @@
             // 레벨 버튼 텍스트 업데이트
             const levelBtn = document.getElementById('levelBtn');
 
-            if (playerData.currentLevel >= 5) {
+            if (playerData.currentLevel >= 3) {
                 levelBtn.textContent = '🎤 앨범 데뷔';
                 levelBtn.onclick = startAlbumDebut;
             } else {
@@ -2914,9 +3029,9 @@
 
         // ===== 앨범 데뷔 시스템 =====
         function startAlbumDebut() {
-            // 레벨 체크 (5 레벨 이상이어야 데뷔 가능)
-            if (playerData.groupLevel < 0) {
-                alert(`🎤 앨범 데뷔 조건 미달!\n\n현재 그룹 레벨: ${playerData.groupLevel}\n필요 그룹 레벨: 5\n\n더 많은 게임을 클리어하여 그룹을 성장시키세요!`);
+            // 레벨 체크 (3 레벨 이상이어야 데뷔 가능)
+            if (playerData.currentLevel < 3) {
+                alert(`🎤 앨범 데뷔 조건 미달!\n\n현재 레벨: ${playerData.currentLevel}\n필요 레벨: 3\n\n더 많은 게임을 클리어하여 레벨을 올리세요!`);
                 return;
             }
 
@@ -3012,20 +3127,155 @@
             updateHomeUI();
             
             // 최종 결과 메시지
-            const resultMessage = `🎉 앨범 데뷔 완료! 🎉\n\n` +
-                `📊 데뷔 성과\n` +
-                `🏆 등급: ${grade}\n` +
-                `🎭 공연 점수: ${performanceScore}\n` +
-                `👥 관객 반응: ${audienceReaction}\n` +
-                `💿 앨범 판매: ${albumSales}장\n` +
-                `💰 획득 코인: ${coinReward}\n\n` +
-                `${gradeMessage}\n\n` +
-                `✨ 모든 멤버의 능력치가 향상되었습니다!`;
+            // 커스텀 팝업 생성
+            showCustomResultPopup(grade, performanceScore, audienceReaction, albumSales, coinReward, gradeMessage);
+        }
+
+        function showCustomResultPopup(grade, performanceScore, audienceReaction, albumSales, coinReward, gradeMessage) {
+            // 오버레이 생성
+            const overlay = document.createElement('div');
+            overlay.className = 'custom-popup-overlay';
             
-            alert(resultMessage);
+            // 팝업 컨테이너 생성
+            const popup = document.createElement('div');
+            popup.className = 'custom-popup';
             
-            // 확인 버튼 누르면 홈화면으로 이동
-            goHome();
+            // 팝업 내용 생성
+            popup.innerHTML = `
+                <div class="popup-title">🎉 앨범 데뷔 완료! 🎉</div>
+                
+                <div class="popup-content">
+                    <div class="popup-stats">
+                        <div style="text-align: center; font-size: 1.3em; margin-bottom: 15px; color: #2c3e50;">📊 데뷔 성과</div>
+                        <div class="popup-stat-row">
+                            <span>🏆 등급:</span>
+                            <span style="color: #e74c3c;">${grade}</span>
+                        </div>
+                        <div class="popup-stat-row">
+                            <span>🎵 스트리밍:</span>
+                            <span style="color: #3498db;">${formatNumber(performanceScore)}</span>
+                        </div>
+                        <div class="popup-stat-row">
+                            <span>👁️ 조회 수:</span>
+                            <span style="color: #9b59b6;">${formatNumber(audienceReaction)}</span>
+                        </div>
+                        <div class="popup-stat-row">
+                            <span>🏆 음원 순위:</span>
+                            <span style="color: #f39c12;">${albumSales}위</span>
+                        </div>
+                        <div class="popup-stat-row">
+                            <span>💰 획득 코인:</span>
+                            <span style="color: #27ae60;">${coinReward}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="popup-grade-message">
+                        ${gradeMessage}
+                    </div>
+                    
+                    <div style="text-align: center; color: #7f8c8d; font-style: italic;">
+                        ✨ 모든 멤버의 능력치가 향상되었습니다!
+                    </div>
+                </div>
+                
+                <button class="popup-button" onclick="closeResultPopup()">
+                    ✅ 확인
+                </button>
+            `;
+            
+            overlay.appendChild(popup);
+            document.body.appendChild(overlay);
+        }
+
+        function closeResultPopup() {
+            const overlay = document.querySelector('.custom-popup-overlay');
+            if (overlay) {
+                overlay.style.animation = 'popupFadeIn 0.3s ease-out reverse';
+                setTimeout(() => {
+                    document.body.removeChild(overlay);
+                    goHome(); // 홈화면으로 이동
+                }, 300);
+            }
+        }
+
+        function showPerformanceResultPopup(audienceScore, performanceScore, ranking, coinReward) {
+            // 오버레이 생성
+            const overlay = document.createElement('div');
+            overlay.className = 'custom-popup-overlay';
+            
+            // 팝업 컨테이너 생성
+            const popup = document.createElement('div');
+            popup.className = 'custom-popup';
+            
+            // 순위에 따른 메시지 결정
+            let rankMessage = "";
+            let rankColor = "";
+            if (ranking === 1) {
+                rankMessage = "🏆 음원차트 1위 달성! 대박 신곡!";
+                rankColor = "#f39c12";
+            } else if (ranking <= 10) {
+                rankMessage = `🎵 음원차트 ${ranking}위! 상당한 인기!`;
+                rankColor = "#e67e22";
+            } else if (ranking <= 50) {
+                rankMessage = `📈 음원차트 ${ranking}위! 괜찮은 성과!`;
+                rankColor = "#95a5a6";
+            } else {
+                rankMessage = `📊 음원차트 ${ranking}위! 더 분발이 필요해요!`;
+                rankColor = "#7f8c8d";
+            }
+            
+            // 팝업 내용 생성
+            popup.innerHTML = `
+                <div class="popup-title">🎉 신곡 출시 성공! 🎉</div>
+                
+                <div class="popup-content">
+                    <div class="popup-stats">
+                        <div style="text-align: center; font-size: 1.3em; margin-bottom: 15px; color: #2c3e50;">📊 최종 성과</div>
+                        <div class="popup-stat-row">
+                            <span>👁️ 조회 수:</span>
+                            <span style="color: #9b59b6;">${formatNumber(audienceScore)}</span>
+                        </div>
+                        <div class="popup-stat-row">
+                            <span>🎵 스트리밍:</span>
+                            <span style="color: #3498db;">${formatNumber(performanceScore)}</span>
+                        </div>
+                        <div class="popup-stat-row">
+                            <span>🏆 음원 순위:</span>
+                            <span style="color: ${rankColor};">${ranking}위</span>
+                        </div>
+                        <div class="popup-stat-row">
+                            <span>💰 획득 코인:</span>
+                            <span style="color: #27ae60;">${coinReward}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="popup-grade-message" style="background: linear-gradient(135deg, ${rankColor}, ${rankColor}dd);">
+                        ${rankMessage}
+                    </div>
+                    
+                    <div style="text-align: center; color: #7f8c8d; font-style: italic;">
+                        ✨ 모든 멤버의 능력치가 향상되었습니다!
+                    </div>
+                </div>
+                
+                <button class="popup-button" onclick="closePerformanceResultPopup()">
+                    ✅ 확인
+                </button>
+            `;
+            
+            overlay.appendChild(popup);
+            document.body.appendChild(overlay);
+        }
+
+        function closePerformanceResultPopup() {
+            const overlay = document.querySelector('.custom-popup-overlay');
+            if (overlay) {
+                overlay.style.animation = 'popupFadeIn 0.3s ease-out reverse';
+                setTimeout(() => {
+                    document.body.removeChild(overlay);
+                    goHome(); // 홈화면으로 이동
+                }, 300);
+            }
         }
 
         // ===== 무대 공연 시스템 (idol.html에서 가져옴) =====
@@ -3050,17 +3300,34 @@
                 '💫 무대 장악력 대박!'
             ],
             memberPerformance: [85, 92, 88], // 서연, 민지, 하연 기본 성능
-            lyrics: [
+            lyrics1: [
                 { time: 0, text: "🎵 Starlight Dreams 🎵", next: "어둠 속에 빛이 번져", focusCharacter: "all", endTime: 19 },
                 { time: 19, text: "어둠 속에 빛이 번져", next: "별이 춤추는 밤의 거리", focusCharacter: "seoyeon", endTime: 23 },
                 { time: 23, text: "별이 춤추는 밤의 거리", next: "한 걸음씩 다가가 봐", focusCharacter: "minji", endTime: 26 },
                 { time: 26, text: "한 걸음씩 다가가 봐", next: "심장이 뛰어 더 크게 뛰어", focusCharacter: "hayeon", endTime: 32 },
                 { time: 32, text: "심장이 뛰어 더 크게 뛰어", next: "✨ 멈출 수 없어 이 순간을 잡아 ✨", focusCharacter: "seoyeon", endTime: 40 },
                 { time: 40, text: "✨ 멈출 수 없어 이 순간을 잡아 ✨", next: "별빛 속에 춤을 춰 반짝이는 우리 모습", focusCharacter: "minji", endTime: 48 },
-                { time: 48, text: "별빛 속에 춤을 춰 반짝이는 우리 모습", next: "멈추지 마 계속 가 이 밤이 끝날 때까지", focusCharacter: "hayeon", endTime: 55 },
-                { time: 55, text: "멈추지 마 계속 가 이 밤이 끝날 때까지", next: "", focusCharacter: "all", endTime: 99 },
+                { time: 48, text: "별빛 속에 춤을 춰 반짝이는 우리 모습", next: "내 안에 빛은 꺼지지 않아", focusCharacter: "hayeon", endTime: 55 },
+                { time: 55, text: "내 안에 빛은 꺼지지 않아", next: "", focusCharacter: "all", endTime: 99 },
                 { time: 99, text: "", next: "", focusCharacter: null, endTime: 99 }
-            ],
+            ],            
+            lyrics2: [
+                { time: 0, text: "🎵 Treetive 🎵", next: "처음엔 나도 몰랐어", focusCharacter: "all", endTime: 7 },
+                { time: 7, text: "처음엔 나도 몰랐어", next: "불빛 없는 길을 걸었지", focusCharacter: "seoyeon", endTime: 9 },
+                { time: 9, text: "불빛 없는 길을 걸었지", next: "AI의 물결 속에", focusCharacter: "minji", endTime: 14 },
+                { time: 14, text: "AI의 물결 속에", next: "우린 잠시 길을 잃었지", focusCharacter: "hayeon", endTime: 17 },
+                { time: 17, text: "우린 잠시 길을 잃었지", next: "숨죽인 채 버텼어", focusCharacter: "seoyeon", endTime: 22 },
+                { time: 22, text: "숨죽인 채 버텼어", next: "의심과 속삭임 속에", focusCharacter: "minji", endTime: 24 },
+                { time: 24, text: "의심과 속삭임 속에", next: "하지만 포기 안 했어", focusCharacter: "hayeon", endTime: 26 },
+                { time: 26, text: "하지만 포기 안 했어 내 안에 빛은 꺼지지 않아", next: "이제 우릴 묶던 프레임을 깨고 나서", focusCharacter: "all", endTime: 30 },
+                { time: 30, text: "이제 우릴 묶던 프레임을 깨고 나서", next: "진짜 나로 다시 태어나 We rise again, oh", focusCharacter: "hayeon", endTime: 34 },
+                { time: 34, text: "진짜 나로 다시 태어나 We rise again, oh", next: "우린 트리티브, 멈추지 않아 혼돈의 시대를 넘어", focusCharacter: "all", endTime: 39 },
+                { time: 39, text: "우린 트리티브, 멈추지 않아 혼돈의 시대를 넘어", next: "세상 끝까지 외쳐“이건 우리의 시간이야”", focusCharacter: "hayeon", endTime: 42 },
+                { time: 42, text: "세상 끝까지 외쳐“이건 우리의 시간이야", next: "You know we’re gonna shine, oh”", focusCharacter: "minji", endTime: 47 },
+                { time: 47, text: "You know we’re gonna shine, oh", next: "글로벌 위에 남겨 Gonna be, gonna be”", focusCharacter: "seoyeon", endTime: 48 },
+                { time: 48, text: "글로벌 위에 남겨 Gonna be, gonna be", next: "우린 트리티브", focusCharacter: "all", endTime: 53 },
+                { time: 53, text: "우린 트리티브", next: "", focusCharacter: "all", endTime: 144 },
+                ],
             currentLyricIndex: 0
         };
 
@@ -3075,15 +3342,34 @@
             performanceData.albumSales = 100;
             performanceData.completedFully = true;
 
-            // 가사 초기화
-            document.getElementById('currentLyric').textContent = "🎵 Starlight Dreams 🎵";
-            document.getElementById('nextLyric').textContent = "어둠 속에 빛이 번져";
+            // 가사 및 곡 정보 초기화 - 레벨에 따라 다른 가사
+            if (playerData.currentLevel >= 5) {
+                document.getElementById('currentLyric').textContent = "🎵 Treetive 🎵";
+                document.getElementById('nextLyric').textContent = "처음엔 나도 몰랐어";
+                document.getElementById('currentSong').textContent = "Treetive";
+                performanceData.songDuration = 142; // 2:22
+            } else {
+                document.getElementById('currentLyric').textContent = "🎵 Starlight Dreams 🎵";
+                document.getElementById('nextLyric').textContent = "어둠 속에 빛이 번져";
+                document.getElementById('currentSong').textContent = "Starlight Dreams";
+                performanceData.songDuration = 99; // 1:39
+            }
             
             // 수치 표시 포맷 업데이트
             updatePerformanceUI();
 
-            // 배경음악 재생 시도
+            // 배경음악 재생 시도 - 레벨에 따라 다른 음악 재생
             const audio = document.getElementById('performanceAudio');
+            const audioSource = document.getElementById('audioSource');
+            
+            // 레벨에 따른 음악 선택
+            if (playerData.currentLevel >= 5) {
+                audioSource.src = './Res/Treetive.mp3';
+            } else {
+                audioSource.src = './Res/starLightDance.mp3';
+            }
+            
+            audio.load(); // 새 소스 로드
             audio.volume = 0.6;
             audio.currentTime = 0;
             audio.play().catch(e => {
@@ -3094,6 +3380,14 @@
             document.getElementById('performanceProgress').style.display = 'block';
             document.querySelector('.performance-btn').textContent = '🎵 신곡 출시 중...';
             document.querySelector('.performance-btn').disabled = true;
+            
+            // 홈으로 버튼 숨기기
+            const homeButtons = document.querySelectorAll('button[onclick="goHome()"]');
+            homeButtons.forEach(button => {
+                if (button.textContent.includes('홈으로')) {
+                    button.style.display = 'none';
+                }
+            });
 
             // 멤버들 공연 시작 애니메이션
             const members = document.querySelectorAll('.stage-member');
@@ -3185,7 +3479,8 @@
 
         function updateLyrics() {
             const currentTime = performanceData.currentTime;
-            const lyrics = performanceData.lyrics;
+            // 레벨에 따라 다른 가사 선택
+            const lyrics = playerData.currentLevel >= 5 ? performanceData.lyrics2 : performanceData.lyrics1;
             
             // 현재 시간에 해당하는 가사 찾기
             let currentLyric = "";
@@ -3490,14 +3785,8 @@
                 const finalFinalAudienceScore = finalAudienceScore;
                 const finalFinalScore = finalScore;
                 
-                const message = `🎉 신곡 출시 성공!\n\n` +
-                    `👁️ 최종 조회 수: ${formatNumber(finalFinalAudienceScore)}\n` +
-                    `🎵 최종 스트리밍: ${formatNumber(finalFinalScore)}\n` +
-                    `🏆 최종 음원 순위: ${finalRanking}위\n` +
-                    `💰 획득 코인: ${coinReward}\n\n` +
-                    `✨ 모든 멤버의 능력치가 향상되었습니다!`;
-                
-                alert(message);
+                // 커스텀 공연 결과 팝업 표시
+                showPerformanceResultPopup(finalFinalAudienceScore, finalFinalScore, finalRanking, coinReward);
             }, 1000);
         }
 
