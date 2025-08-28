@@ -2760,8 +2760,12 @@
         }
 
         function goHome() {
-            // 공연이 진행 중이면 정지
+            // 공연이 진행 중이면 정지 (중간에 나간 경우)
             if (performanceData.isPerforming) {
+                // 중간에 나간 경우 현재 순위를 최종 순위로 설정 (1위 달성 불가)
+                const currentRank = performanceData.albumSales;
+                performanceData.albumSales = currentRank; // 현재 순위 유지
+                performanceData.completedFully = false; // 완주하지 못했음을 표시
                 endPerformance();
             }
             
@@ -2775,12 +2779,19 @@
             // 모든 비디오 정지
             stopAllVideos();
             
+            // 실시간 리액션 피드 초기화
+            const reactionFeed = document.getElementById('reactionFeed');
+            if (reactionFeed) {
+                reactionFeed.innerHTML = '';
+            }
+            
             // 공연 데이터 초기화
             performanceData.isPerforming = false;
             performanceData.currentTime = 0;
             performanceData.audienceScore = 0;
             performanceData.performanceScore = 0;
             performanceData.albumSales = 100;
+            performanceData.completedFully = true;
             
             // UI 초기화
             document.getElementById('performanceProgress').style.display = 'none';
@@ -3022,6 +3033,7 @@
             audienceScore: 0,
             performanceScore: 0,
             albumSales: 100,
+            completedFully: true,
             reactions: [
                 '😍 우와 너무 멋있어!',
                 '🔥 무대 진짜 찢었다!',
@@ -3058,6 +3070,7 @@
             performanceData.audienceScore = 0;
             performanceData.performanceScore = 0;
             performanceData.albumSales = 100;
+            performanceData.completedFully = true;
 
             // 가사 초기화
             document.getElementById('currentLyric').textContent = "🎵 Starlight Dreams 🎵";
@@ -3457,10 +3470,27 @@
 
             // 결과 메시지
             setTimeout(() => {
+                // 공연 데이터를 최종 데이터로 설정
+                performanceData.audienceScore = finalAudienceScore;
+                performanceData.performanceScore = finalScore;
+                
+                // 완주 여부에 따라 순위 결정
+                let finalRanking;
+                if (performanceData.completedFully) {
+                    performanceData.albumSales = 1; // 완주한 경우 1위 달성
+                    finalRanking = 1;
+                } else {
+                    // 중간에 나간 경우 현재 순위 유지
+                    finalRanking = performanceData.albumSales;
+                }
+                
+                const finalFinalAudienceScore = finalAudienceScore;
+                const finalFinalScore = finalScore;
+                
                 const message = `🎉 신곡 출시 성공!\n\n` +
-                    `👁️ 최종 조회 수: ${formatNumber(finalAudienceScore)}\n` +
-                    `🎵 최종 스트리밍: ${formatNumber(finalScore)}\n` +
-                    `🏆 최종 음원 순위: ${performanceData.albumSales}위\n` +
+                    `👁️ 최종 조회 수: ${formatNumber(finalFinalAudienceScore)}\n` +
+                    `🎵 최종 스트리밍: ${formatNumber(finalFinalScore)}\n` +
+                    `🏆 최종 음원 순위: ${finalRanking}위\n` +
                     `💰 획득 코인: ${coinReward}\n\n` +
                     `✨ 모든 멤버의 능력치가 향상되었습니다!`;
                 
