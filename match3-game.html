@@ -1535,20 +1535,23 @@
             border-radius: 15px;
             padding: 20px;
             backdrop-filter: blur(10px);
+            text-align: center;
         }
 
         .current-lyric {
-            font-size: 1.5em;
-            font-weight: bold;
+            font-size: 2em;
+            font-weight: 900;
             color: #ffd700;
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            text-align: center;
         }
 
         .next-lyric {
             font-size: 1em;
             color: rgba(255,255,255,0.7);
             opacity: 0.8;
+            text-align: center;
         }
     </style>
 </head>
@@ -2210,7 +2213,20 @@
                 '🎵 이 노래 너무 좋아!',
                 '🌟 진짜 스타 같아!',
                 '💫 무대 장악력 대박!'
-            ]
+            ],
+            memberPerformance: [85, 92, 88], // 서연, 민지, 하연 기본 성능
+            lyrics: [
+                { time: 0, text: "🎵 Starlight Dreams 🎵", next: "어둠 속에 빛이 번져" },
+                { time: 19, text: "어둠 속에 빛이 번져", next: "별이 춤추는 밤의 거리" },
+                { time: 23, text: "별이 춤추는 밤의 거리", next: "한 걸음씩 다가가 봐" },
+                { time: 26, text: "한 걸음씩 다가가 봐", next: "심장이 뛰어 더 크게 뛰어" },
+                { time: 32, text: "심장이 뛰어 더 크게 뛰어", next: "✨ 멈출 수 없어 이 순간을 잡아 ✨" },
+                { time: 40, text: "✨ 멈출 수 없어 이 순간을 잡아 ✨", next: "별빛 속에 춤을 춰 반짝이는 우리 모습" },
+                { time: 48, text: "별빛 속에 춤을 춰 반짝이는 우리 모습", next: "멈추지 마 계속 가 이 밤이 끝날 때까지" },
+                { time: 55, text: "멈추지 마 계속 가 이 밤이 끝날 때까지", next: "" },
+                { time: 70, text: "", next: "" }
+            ],
+            currentLyricIndex: 0
         };
 
         function startPerformance() {
@@ -2259,7 +2275,7 @@
                 updatePerformanceUI();
 
                 // 실시간 반응 추가
-                if (performanceData.currentTime % 15 === 0) {
+                if (performanceData.currentTime % 2 === 0) {
                     addRandomReaction();
                 }
 
@@ -2310,20 +2326,116 @@
             document.getElementById('songTime').textContent = 
                 `${minutes}:${seconds.toString().padStart(2, '0')} / ${totalMinutes}:${totalSeconds.toString().padStart(2, '0')}`;
 
+            // 가사 업데이트
+            updateLyrics();
+
             // 점수 업데이트
             document.getElementById('audienceScore').textContent = performanceData.audienceScore;
             document.getElementById('performanceScore').textContent = performanceData.performanceScore;
             document.getElementById('albumSales').textContent = performanceData.albumSales;
         }
 
-        function addRandomReaction() {
+        function updateLyrics() {
+            const currentTime = performanceData.currentTime;
+            const lyrics = performanceData.lyrics;
+            
+            // 현재 시간에 해당하는 가사 찾기
+            let currentLyric = "";
+            let nextLyric = "";
+            
+            for (let i = 0; i < lyrics.length; i++) {
+                if (currentTime >= lyrics[i].time) {
+                    currentLyric = lyrics[i].text;
+                    nextLyric = lyrics[i].next;
+                    
+                    // 다음 가사가 곧 나올 예정인지 확인
+                    if (i < lyrics.length - 1 && currentTime >= lyrics[i + 1].time - 2) {
+                        nextLyric = lyrics[i + 1].text;
+                    }
+                } else {
+                    break;
+                }
+            }
+            
+            // DOM 업데이트
+            const currentLyricElement = document.getElementById('currentLyric');
+            const nextLyricElement = document.getElementById('nextLyric');
+            
+            if (currentLyricElement) {
+                currentLyricElement.textContent = currentLyric;
+            }
+            
+            if (nextLyricElement) {
+                nextLyricElement.textContent = nextLyric;
+            }
+        }
+
+        async function addRandomReaction() {
+            // AI 생성 리액션과 기본 리액션 중 랜덤 선택 (90% 확률)
+            if (Math.random() < 0.9) {
+                await addAIGeneratedReaction();
+            } else {
+                addBasicReaction();
+            }
+        }
+
+        function addBasicReaction() {
             const reactions = performanceData.reactions;
             const randomReaction = reactions[Math.floor(Math.random() * reactions.length)];
             
+            addReactionToUI(randomReaction);
+        }
+
+        async function addAIGeneratedReaction() {
+            try {
+                const currentLyric = document.getElementById('currentLyric').textContent;
+                const performanceScore = performanceData.performanceScore;
+                const currentTime = performanceData.currentTime;
+                
+                // 공연 상황에 맞는 프롬프트 생성
+                let context = "K-POP 걸그룹 STARLIGHT GIRLS의 무대 공연 중";
+                if (currentLyric && currentLyric.trim() !== "") {
+                    context += `, 현재 가사: "${currentLyric}"`;
+                }
+                context += `, 공연 점수: ${performanceScore}, 공연 시간: ${currentTime}초`;
+                
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer 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'
+                    },
+                    body: JSON.stringify({
+                        model: 'gpt-3.5-turbo',
+                        messages: [{
+                            role: 'user',
+                            content: `${context}에서 팬들이 실시간으로 보낼 수 있는 짧고 감정적인 리액션 메시지를 한국어로 생성해주세요. 너무 좋다고만 하지말고 안좋은 반응도 있었으면 좋을 것 같다. 이모지를 포함하고 20자 이내로 작성해주세요. 예시: "😍 우와 너무 멋있어!", "🔥 무대 찢었다!", "💕 완벽해!"와 같은 스타일로.`
+                        }],
+                        max_tokens: 50,
+                        temperature: 0.8
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const aiReaction = data.choices[0].message.content.trim();
+                    addReactionToUI(aiReaction);
+                    console.log('AI 생성 리액션:', aiReaction);
+                } else {
+                    console.error('OpenAI API 에러:', response.status);
+                    addBasicReaction(); // 실패시 기본 리액션 사용
+                }
+            } catch (error) {
+                console.error('AI 리액션 생성 실패:', error);
+                addBasicReaction(); // 실패시 기본 리액션 사용
+            }
+        }
+
+        function addReactionToUI(reactionText) {
             const reactionFeed = document.getElementById('reactionFeed');
             const newReaction = document.createElement('div');
             newReaction.className = 'reaction';
-            newReaction.textContent = randomReaction;
+            newReaction.textContent = reactionText;
             
             // 새 반응을 맨 위에 추가
             reactionFeed.insertBefore(newReaction, reactionFeed.firstChild);
