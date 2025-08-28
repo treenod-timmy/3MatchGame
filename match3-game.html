@@ -1960,6 +1960,130 @@
                 transform: translateY(0);
             }
         }
+
+        /* 트레이닝 성공 팝업 스타일 */
+        .training-success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            animation: overlayFadeIn 0.3s ease-out forwards;
+        }
+
+        .training-success-popup {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 25px;
+            padding: 40px 50px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            max-width: 400px;
+            transform: scale(0.8);
+            animation: popupBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.1s forwards;
+        }
+
+        .training-success-popup::before {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 15px solid #667eea;
+            filter: drop-shadow(0 3px 6px rgba(0,0,0,0.2));
+        }
+
+        .training-success-title {
+            font-size: 2.2em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            background: linear-gradient(45deg, #ffd700, #fff, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .training-success-content {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            opacity: 0;
+            animation: contentSlideIn 0.4s ease-out 0.3s forwards;
+        }
+
+        .training-success-stats {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            animation: contentSlideIn 0.4s ease-out 0.5s forwards;
+        }
+
+        .training-success-button {
+            background: linear-gradient(135deg, #ffd700, #ffed4a);
+            border: none;
+            color: #333;
+            padding: 12px 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.3);
+            transition: all 0.3s ease;
+            opacity: 0;
+            animation: contentSlideIn 0.4s ease-out 0.7s forwards;
+        }
+
+        .training-success-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.5);
+        }
+
+        .training-success-button:active {
+            transform: translateY(0);
+        }
+
+        @keyframes overlayFadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes popupBounce {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes contentSlideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <body>
@@ -2943,7 +3067,7 @@
         let currentScreen = 'home';
         let playerData = {
             totalCoins: 0,
-            currentLevel: 4,
+            currentLevel: 5,
             maxLevel: 5,
             members: [
                 {
@@ -2995,7 +3119,19 @@
                 const currentRank = performanceData.albumSales;
                 performanceData.albumSales = currentRank; // 현재 순위 유지
                 performanceData.completedFully = false; // 완주하지 못했음을 표시
-                endPerformance();
+                
+                // 공연 중간에 나간 경우 결과 팝업 표시
+                const finalAudienceScore = performanceData.audienceScore;
+                const finalPerformanceScore = performanceData.performanceScore;
+                const coinReward = Math.floor(currentRank * 2); // 중간 종료 보상
+                
+                // 공연 데이터 초기화
+                performanceData.isPerforming = false;
+                performanceData.currentTime = 0;
+                
+                // 결과 팝업 표시
+                showPerformanceResultPopup(finalAudienceScore, finalPerformanceScore, currentRank, coinReward);
+                return; // 여기서 함수 종료
             }
             
             // 오디오 정지
@@ -3058,6 +3194,16 @@
 
         function updateHomeUI() {
             document.getElementById('totalCoins').textContent = playerData.totalCoins;
+            
+            // 가사 초기화
+            const currentLyricElement = document.getElementById('currentLyric');
+            const nextLyricElement = document.getElementById('nextLyric');
+            if (currentLyricElement) {
+                currentLyricElement.textContent = "준비 중...";
+            }
+            if (nextLyricElement) {
+                nextLyricElement.textContent = "";
+            }
             
             // 레벨 버튼 텍스트 업데이트
             const levelBtn = document.getElementById('levelBtn');
@@ -3270,7 +3416,6 @@
             
             // 플레이어 데이터 업데이트
             playerData.totalCoins += coinReward;
-            
             // 모든 멤버 능력치 소폭 증가 (데뷔 경험)
             playerData.members.forEach(member => {
                 member.vocal = Math.min(member.vocal + 2, 100);
@@ -3281,6 +3426,9 @@
             
             updateMemberStats();
             updateHomeUI();
+            
+            // 플레이어 데이터 저장
+            localStorage.setItem('playerData', JSON.stringify(playerData));
             
             // 최종 결과 메시지
             // 커스텀 팝업 생성
@@ -3296,6 +3444,8 @@
             const popup = document.createElement('div');
             popup.className = 'custom-popup';
             
+            alert(resultMessage);
+
             // 팝업 내용 생성
             popup.innerHTML = `
                 <div class="popup-title">🎉 앨범 데뷔 완료! 🎉</div>
@@ -3348,7 +3498,9 @@
             if (overlay) {
                 overlay.style.animation = 'popupFadeIn 0.3s ease-out reverse';
                 setTimeout(() => {
+
                     document.body.removeChild(overlay);
+                    
                     goHome(); // 홈화면으로 이동
                 }, 300);
             }
@@ -3428,6 +3580,10 @@
             if (overlay) {
                 overlay.style.animation = 'popupFadeIn 0.3s ease-out reverse';
                 setTimeout(() => {
+
+            // 레벨 증가
+                playerData.currentLevel = Math.min(playerData.currentLevel + 1, playerData.maxLevel + 1);
+            
                     document.body.removeChild(overlay);
                     goHome(); // 홈화면으로 이동
                 }, 300);
@@ -3478,8 +3634,8 @@
                 { time: 26, text: "하지만 포기 안 했어 내 안에 빛은 꺼지지 않아", next: "이제 우릴 묶던 프레임을 깨고 나서", focusCharacter: "all", endTime: 30 },
                 { time: 30, text: "이제 우릴 묶던 프레임을 깨고 나서", next: "진짜 나로 다시 태어나 We rise again, oh", focusCharacter: "hayeon", endTime: 34 },
                 { time: 34, text: "진짜 나로 다시 태어나 We rise again, oh", next: "우린 트리티브, 멈추지 않아 혼돈의 시대를 넘어", focusCharacter: "all", endTime: 39 },
-                { time: 39, text: "우린 트리티브, 멈추지 않아 혼돈의 시대를 넘어", next: "세상 끝까지 외쳐“이건 우리의 시간이야”", focusCharacter: "hayeon", endTime: 42 },
-                { time: 42, text: "세상 끝까지 외쳐“이건 우리의 시간이야", next: "You know we’re gonna shine, oh”", focusCharacter: "minji", endTime: 47 },
+                { time: 39, text: "우린 트리티브, 멈추지 않아 혼돈의 시대를 넘어", next: "세상 끝까지 외쳐 이건 우리의 시간이야", focusCharacter: "hayeon", endTime: 42 },
+                { time: 42, text: "세상 끝까지 외쳐 이건 우리의 시간이야", next: "You know we’re gonna shine, oh”", focusCharacter: "minji", endTime: 47 },
                 { time: 47, text: "You know we’re gonna shine, oh", next: "글로벌 위에 남겨 Gonna be, gonna be”", focusCharacter: "seoyeon", endTime: 48 },
                 { time: 48, text: "글로벌 위에 남겨 Gonna be, gonna be", next: "우린 트리티브", focusCharacter: "all", endTime: 53 },
                 { time: 53, text: "우린 트리티브", next: "", focusCharacter: "all", endTime: 144 },
@@ -3503,7 +3659,7 @@
                 document.getElementById('currentLyric').textContent = "🎵 Treetive 🎵";
                 document.getElementById('nextLyric').textContent = "처음엔 나도 몰랐어";
                 document.getElementById('currentSong').textContent = "Treetive";
-                performanceData.songDuration = 142; // 2:22
+                performanceData.songDuration = 60; // 1:00
             } else {
                 document.getElementById('currentLyric').textContent = "🎵 Starlight Dreams 🎵";
                 document.getElementById('nextLyric').textContent = "어둠 속에 빛이 번져";
@@ -3537,13 +3693,7 @@
             document.querySelector('.performance-btn').textContent = '🎵 신곡 출시 중...';
             document.querySelector('.performance-btn').disabled = true;
             
-            // 홈으로 버튼 숨기기
-            const homeButtons = document.querySelectorAll('button[onclick="goHome()"]');
-            homeButtons.forEach(button => {
-                if (button.textContent.includes('홈으로')) {
-                    button.style.display = 'none';
-                }
-            });
+           
 
             // 멤버들 공연 시작 애니메이션
             const members = document.querySelectorAll('.stage-member');
@@ -4144,7 +4294,8 @@
                                 stopStylingTrainerAnimation();
                             }
                             
-                            alert(`🎉 ${typeNames[type]} 연습 완료!\n\n모든 멤버의 능력치가 향상되었습니다!\n총 증가량: +${totalIncrease}`);
+                            // 커스텀 팝업으로 연습 완료 메시지 표시
+                            showTrainingSuccessPopup(type, totalIncrease);
                             
                             // 기본 메시지로 복귀
                             setTimeout(() => {
@@ -4379,6 +4530,67 @@
             stopHpTrainerAnimation();
             stopDietTrainerAnimation();
             stopStylingTrainerAnimation();
+        }
+
+        // 트레이닝 성공 커스텀 팝업 표시
+        function showTrainingSuccessPopup(type, totalIncrease) {
+            const typeNames = {
+                vocal: '보컬',
+                dance: '댄스', 
+                emotion: '감정',
+                hp: '체력',
+                diet: '식단관리',
+                styling: '스타일링'
+            };
+
+            const typeIcons = {
+                vocal: '🎤',
+                dance: '💃',
+                emotion: '😊',
+                hp: '❤️',
+                diet: '🍎',
+                styling: '💄'
+            };
+
+            // 오버레이 생성
+            const overlay = document.createElement('div');
+            overlay.className = 'training-success-overlay';
+
+            // 팝업 컨테이너 생성
+            const popup = document.createElement('div');
+            popup.className = 'training-success-popup';
+
+            popup.innerHTML = `
+                <div class="training-success-title">
+                    ${typeIcons[type]} 연습 완료!
+                </div>
+                <div class="training-success-content">
+                    <strong>${typeNames[type]} 연습이 성공적으로 완료되었습니다!</strong><br>
+                    모든 멤버의 능력치가 향상되었습니다.
+                </div>
+                <div class="training-success-stats">
+                    💪 총 증가량: <strong>+${totalIncrease}</strong>
+                </div>
+                <button class="training-success-button" onclick="closeTrainingSuccessPopup()">
+                    확인
+                </button>
+            `;
+
+            overlay.appendChild(popup);
+            document.body.appendChild(overlay);
+
+            console.log(`${typeNames[type]} 연습 성공 팝업 표시`);
+        }
+
+        // 트레이닝 성공 팝업 닫기
+        function closeTrainingSuccessPopup() {
+            const overlay = document.querySelector('.training-success-overlay');
+            if (overlay) {
+                overlay.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(overlay);
+                }, 300);
+            }
         }
 
         // ===== 달리기 게임 시스템 =====
