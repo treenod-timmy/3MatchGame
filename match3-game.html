@@ -1580,11 +1580,16 @@
         }
 
         .lyrics-container {
-            background: rgba(0,0,0,0.3);
-            border-radius: 15px;
-            padding: 20px;
-            backdrop-filter: blur(10px);
+            background: rgba(255,255,255,0.15);
+            border-radius: 20px;
+            padding: 25px;
+            backdrop-filter: blur(15px);
             text-align: center;
+            border: 2px solid rgba(255,255,255,0.3);
+            box-shadow: 
+                0 10px 30px rgba(0,0,0,0.4),
+                inset 0 1px 0 rgba(255,255,255,0.2);
+            position: relative;
         }
 
         .current-lyric {
@@ -2755,6 +2760,36 @@
         }
 
         function goHome() {
+            // 공연이 진행 중이면 정지
+            if (performanceData.isPerforming) {
+                endPerformance();
+            }
+            
+            // 오디오 정지
+            const audio = document.getElementById('performanceAudio');
+            if (audio) {
+                audio.pause();
+                audio.currentTime = 0;
+            }
+            
+            // 모든 비디오 정지
+            stopAllVideos();
+            
+            // 공연 데이터 초기화
+            performanceData.isPerforming = false;
+            performanceData.currentTime = 0;
+            performanceData.audienceScore = 0;
+            performanceData.performanceScore = 0;
+            performanceData.albumSales = 100;
+            
+            // UI 초기화
+            document.getElementById('performanceProgress').style.display = 'none';
+            const performanceBtn = document.querySelector('.performance-btn');
+            if (performanceBtn) {
+                performanceBtn.textContent = '🎵 신곡 출시';
+                performanceBtn.disabled = false;
+            }
+            
             showScreen('homeScreen');
             updateHomeUI();
         }
@@ -2776,7 +2811,7 @@
             // 레벨 버튼 텍스트 업데이트
             const levelBtn = document.getElementById('levelBtn');
 
-            if (playerData.currentLevel > 5) {
+            if (playerData.currentLevel >= 5) {
                 levelBtn.textContent = '🎤 앨범 데뷔';
                 levelBtn.onclick = startAlbumDebut;
             } else {
